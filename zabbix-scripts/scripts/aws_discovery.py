@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-import ConfigParser
 import argparse
 import importlib
 
@@ -18,20 +17,10 @@ if __name__ == "__main__":
     parser.add_argument("--account", dest="account",
                         help="AWS account for discovery",
                         required=True, type=str)
-    parser.add_argument("--config", dest="config",
-                        help="Optional path to config file",
-                        required=False, type=str)
     parser.add_argument("--args", dest="args", default="",
                         help="Optional args for discovery modules",
                         required=False, type=str, nargs="+")
     args = parser.parse_args()
-
-    # This config is optional and will use default value if you don't specify
-    # Config contains credentials for specified accounts (see sample config)
-    default_path = "/usr/lib/zabbix/scripts/conf/aws.conf"
-    conf_file = args.config if args.config else default_path
-    config = ConfigParser.ConfigParser()
-    config.readfp(open(conf_file))
 
     # Tricky part is to dynamically import ONLY one module
     # for the serice that was requested by CLI argument
@@ -39,6 +28,6 @@ if __name__ == "__main__":
                                                "discovery")
 
     # Create instance of discoverer from this module and run actual discovery
-    d = discovery_module.Discoverer(config, args.account,
+    d = discovery_module.Discoverer(args.account,
                                     args.service, args.region)
     print d.get_instances(*args.args)

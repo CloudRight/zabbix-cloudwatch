@@ -10,8 +10,8 @@ Python 2.7.x
 3. Copy contents of `zabbix-scripts` into `/usr/lib/zabbix` directory, change owner of  the dir and its contents to user under which you run Zabbix
 4. [Install](http://boto3.readthedocs.io/en/latest/guide/quickstart.html) system-wide `boto3` package
 5. Import `cloudwatch_template.xml` into Zabbix
-6. Put credentials of account created in (1) into `/usr/lib/zabbix/scripts/conf/aws.conf`
-7. Create host with 0.0.0.0 as interface and link it to the template. Change macros `ACCOUNT` and `REGION` to correspond to your case: 
+6. Put credentials of account created in (1) and other configuration if required into ~/.aws/ for Zabbix user. See [Documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.htm)
+7. Create host with 0.0.0.0 as interface and link it to the template. Change macros `ACCOUNT` and `REGION` to correspond to your case:
 
 ![example](https://awawastuff.files.wordpress.com/2017/04/vi-sky-mon1-configuration-of-hosts.png)
 
