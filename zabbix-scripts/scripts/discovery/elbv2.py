@@ -36,13 +36,18 @@ class Discoverer(BasicDiscoverer):
                 ldd = {
                     "{#TARGET_GROUP_NAME}": TargetGroup["TargetGroupName"],
                     "{#TARGET_GROUP_ARN}": Arn,
-                    "{#TARGET_GROUP_PORT}": TargetGroup["Port"],
-                    "{#TARGET_GROUP_VPC_ID}": TargetGroup["VpcId"],
+                    "{#TARGET_GROUP_PORT}": TargetGroup["Port"] if TargetGroup["TargetType"] != "lambda" else None,
                     "{#TARGET_GROUP_LOAD_BALANCER_NAME}": LoadBalancersDescrByArn[LoadBalancerArn]['LoadBalancerName'],
                     "{#TARGET_GROUP_LOAD_BALANCER_DNS_NAME}": LoadBalancersDescrByArn[LoadBalancerArn]['DNSName'],
                     "{#TARGET_GROUP_LOAD_BALANCER_ARN}": LoadBalancerShortArn,
                     "{#TARGET_COUNT}": len(target_health['TargetHealthDescriptions']),
                 }
+
+                try:
+                    # Lambda targets may or may not be in VPC
+                    ldd["{#TARGET_GROUP_VPC_ID}"] = TargetGroup["VpcId"]
+                except KeyError:
+                    pass
 
                 # Next load balancer in target group
                 data.append(ldd)
