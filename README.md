@@ -1,5 +1,5 @@
 # zabbix-cloudwatch
-Cloudwatch integration for Zabbix 3.x
+Cloudwatch integration for Zabbix 4.x
 
 **Current release: 1.1.0. Zabbix template was tested with Zabbix 3.4, please revert to 1.0.0 if you find any backward incompatibility and open an issue.**
 
