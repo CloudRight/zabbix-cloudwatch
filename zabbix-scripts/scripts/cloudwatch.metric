@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
 from discovery.aws_client import AWSClient
-import ConfigParser
 import datetime
 import argparse
 
@@ -65,9 +64,6 @@ if __name__ == "__main__":
     parser.add_argument("--account", dest="account",
                         help="Instance account`",
                         required=True)
-    parser.add_argument("--config", dest="config",
-                        help="Optional path to config file",
-                        required=False, type=str)
     parser.add_argument("--debug", dest="debug",
                         help="Debug flag",
                         required=False)
@@ -80,11 +76,7 @@ if __name__ == "__main__":
         instance = dimension.split("=")
         dimensions.append(dict(zip(("Name", "Value"), instance)))
 
-    default_path = "/usr/lib/zabbix/scripts/conf/aws.conf"
-    conf_file = args.config if args.config else default_path
-    config = ConfigParser.ConfigParser()
-    config.readfp(open(conf_file))
-    checker = Checker(config, args.account, "cloudwatch", args.region)
+    checker = Checker(args.account, "cloudwatch", args.region)
     checker.debug = args.debug
 
     print checker.get_metric(interval=args.interval,
