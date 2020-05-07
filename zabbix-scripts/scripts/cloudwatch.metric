@@ -5,10 +5,11 @@ import argparse
 
 
 class Checker(AWSClient):
-    def get_metric(self, interval, metric, namespace, statistic, dimensions):
+    def get_metric(self, interval, metric, namespace, statistic, history, dimensions):
+        history = int(history)
         # Constructing timestamps for limiting CloudWatch datapoint list
         end_time = datetime.datetime.utcnow()
-        start_time = end_time - datetime.timedelta(seconds=interval)
+        start_time = end_time - datetime.timedelta(seconds=history if history > 0 else interval)
         result = self.client.get_metric_statistics(
             Namespace=namespace,
             MetricName=metric,
@@ -17,10 +18,10 @@ class Checker(AWSClient):
             EndTime=end_time.isoformat(),
             Statistics=[statistic, ],
             Period=interval)
-        # We use only the first datapoint from list
+        # We use only the last datapoint from list
         # Return -1 if there are no datapoints
         if len(result["Datapoints"]) > 0:
-            ret_val = result["Datapoints"][0][statistic]
+            ret_val = result["Datapoints"][len(result["Datapoints"])-1][statistic]
         else:
             ret_val = -1
         if self.debug:
@@ -64,6 +65,9 @@ if __name__ == "__main__":
     parser.add_argument("--account", dest="account",
                         help="Instance account`",
                         required=True)
+    parser.add_argument("--history", dest="history",
+                        help="Amout of seconds to fetch history, latest datapoint will be chosen",
+                        required=False, default=0)
     parser.add_argument("--debug", dest="debug",
                         help="Debug flag",
                         required=False)
@@ -83,4 +87,5 @@ if __name__ == "__main__":
                              metric=args.metric,
                              namespace=args.namespace,
                              statistic=args.statistic,
+                             history=args.history,
                              dimensions=dimensions)

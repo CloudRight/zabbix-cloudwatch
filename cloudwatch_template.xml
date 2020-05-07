@@ -1173,7 +1173,7 @@
                             <type>10</type>
                             <snmp_community/>
                             <snmp_oid/>
-                            <key>cloudwatch.metric[600,BucketSizeBytes,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=StandardStorage&quot;,{$ACCOUNT}]</key>
+                            <key>cloudwatch.metric[600,BucketSizeBytes,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=StandardStorage&quot;,{$ACCOUNT},172800]</key>
                             <delay>600</delay>
                             <history>90d</history>
                             <trends>365d</trends>
@@ -1215,7 +1215,7 @@
                             <type>10</type>
                             <snmp_community/>
                             <snmp_oid/>
-                            <key>cloudwatch.metric[600,NumberOfObjects,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=AllStorageTypes&quot;,{$ACCOUNT}]</key>
+                            <key>cloudwatch.metric[600,NumberOfObjects,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=AllStorageTypes&quot;,{$ACCOUNT},172800]</key>
                             <delay>600</delay>
                             <history>90d</history>
                             <trends>365d</trends>
@@ -1255,8 +1255,8 @@
                     </item_prototypes>
                     <trigger_prototypes>
                         <trigger_prototype>
-                            <expression>{Cloudwatch Template:cloudwatch.metric[600,BucketSizeBytes,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=StandardStorage&quot;,{$ACCOUNT}].last()}=-1 or&#13;
-                                {Cloudwatch Template:cloudwatch.metric[600,NumberOfObjects,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=AllStorageTypes&quot;,{$ACCOUNT}].last()}=-1</expression>
+                            <expression>{Cloudwatch Template:cloudwatch.metric[600,BucketSizeBytes,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=StandardStorage&quot;,{$ACCOUNT},172800].last()}=-1 or&#13;
+                                {Cloudwatch Template:cloudwatch.metric[600,NumberOfObjects,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=AllStorageTypes&quot;,{$ACCOUNT},172800].last()}=-1</expression>
                             <recovery_mode>0</recovery_mode>
                             <recovery_expression/>
                             <name>S3: {#BUCKET_NAME} has no datapoints</name>
@@ -1301,7 +1301,7 @@
                                     <type>0</type>
                                     <item>
                                         <host>Cloudwatch Template</host>
-                                        <key>cloudwatch.metric[600,BucketSizeBytes,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=StandardStorage&quot;,{$ACCOUNT}]</key>
+                                        <key>cloudwatch.metric[600,BucketSizeBytes,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=StandardStorage&quot;,{$ACCOUNT},172800]</key>
                                     </item>
                                 </graph_item>
                             </graph_items>
@@ -1333,7 +1333,7 @@
                                     <type>0</type>
                                     <item>
                                         <host>Cloudwatch Template</host>
-                                        <key>cloudwatch.metric[600,NumberOfObjects,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=AllStorageTypes&quot;,{$ACCOUNT}]</key>
+                                        <key>cloudwatch.metric[600,NumberOfObjects,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=AllStorageTypes&quot;,{$ACCOUNT},172800]</key>
                                     </item>
                                 </graph_item>
                             </graph_items>
