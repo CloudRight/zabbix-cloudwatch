@@ -27,7 +27,12 @@ if __name__ == "__main__":
     discovery_module = importlib.import_module(".{}".format(args.service),
                                                "discovery")
 
+    if args.service in ["s3", "lambda"]:
+        service = "cloudwatch"
+    else:
+        service = args.service
+
     # Create instance of discoverer from this module and run actual discovery
     d = discovery_module.Discoverer(args.account,
-                                    args.service, args.region)
+                                    service, args.region)
     print d.get_instances(*args.args)

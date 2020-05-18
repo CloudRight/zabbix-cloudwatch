@@ -1,22 +1,23 @@
 #!/usr/bin/env python2
 from basic_discovery import BasicDiscoverer
 
-import re
 
 class Discoverer(BasicDiscoverer):
     def discovery(self, *args):
 
-        response = self.client.list_functions()
+        response = self.client.list_metrics(Namespace="AWS/Lambda")
 
         data = []
 
-        for Function in response["Functions"]:
+        for Function in response["Metrics"]:
+            for Dimension in Function["Dimensions"]:
+                if Dimension["Name"] == "FunctionName":
+                    # Discovery entry
+                    ldd = {
+                        "{#LAMBDA_FUNCTION_NAME}": Dimension["Value"],
+                    }
 
-            # Discovery entry
-            ldd = {
-                "{#LAMBDA_FUNCTION_NAME}": Function["FunctionName"],
-            }
-
-            data.append(ldd)
+                    if ldd not in data:
+                        data.append(ldd)
 
         return data

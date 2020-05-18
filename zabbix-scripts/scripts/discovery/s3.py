@@ -5,18 +5,19 @@ from basic_discovery import BasicDiscoverer
 class Discoverer(BasicDiscoverer):
     def discovery(self, *args):
 
-        response = self.client.list_buckets()
-        data = list()
+        response = self.client.list_metrics(Namespace="AWS/S3")
 
-        # list_buckets() will return the buckets in all regions. Get only those in the requested region
-        # See https://stackoverflow.com/questions/49814173/boto3-get-only-s3-buckets-of-specific-region
-        region_buckets = \
-            [bucket["Name"] for bucket in self.client.list_buckets()["Buckets"] \
-            if self.client.get_bucket_location(Bucket=bucket['Name'])['LocationConstraint'] == self.region]
+        data = []
 
-        for bucket_name in region_buckets:
-            ldd = {
-                "{#BUCKET_NAME}": bucket_name,
-            }
-            data.append(ldd)
+        for Function in response["Metrics"]:
+            for Dimension in Function["Dimensions"]:
+                if Dimension["Name"] == "BucketName":
+                    # Discovery entry
+                    ldd = {
+                        "{#BUCKET_NAME}": Dimension["Value"],
+                    }
+
+                    if ldd not in data:
+                        data.append(ldd)
+
         return data
