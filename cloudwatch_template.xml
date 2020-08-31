@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
-    <version>4.0</version>
-    <date>2020-05-14T12:40:33Z</date>
+    <version>5.0</version>
+    <date>2020-08-31T06:07:50Z</date>
     <groups>
         <group>
             <name>Templates</name>
@@ -11,7 +11,6 @@
         <template>
             <template>Cloudwatch Template</template>
             <name>Cloudwatch Template</name>
-            <description/>
             <groups>
                 <group>
                     <name>Templates</name>
@@ -46,568 +45,159 @@
                     <name>System health</name>
                 </application>
             </applications>
-            <items/>
             <discovery_rules>
                 <discovery_rule>
                     <name>EC2 Discovery</name>
-                    <type>10</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>EXTERNAL</type>
                     <key>aws.discovery[ec2,{$REGION},{$ACCOUNT}]</key>
-                    <delay>3600</delay>
-                    <status>0</status>
-                    <allowed_hosts/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <filter>
-                        <evaltype>0</evaltype>
-                        <formula/>
-                        <conditions/>
-                    </filter>
+                    <delay>300</delay>
                     <lifetime>0</lifetime>
-                    <description/>
                     <item_prototypes>
                         <item_prototype>
                             <name>CPU Usage {#NAME}</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[600,CPUUtilization,AWS/EC2,Average,{$REGION},InstanceId={#INSTANCE_ID},{$ACCOUNT}]</key>
                             <delay>600</delay>
-                            <history>90d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>%</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>CPU</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&gt;80</expression>
+                                    <name>EC2: {#NAME}: High CPU usage</name>
+                                    <status>DISABLED</status>
+                                    <priority>WARNING</priority>
+                                    <description>{ITEM.VALUE}</description>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>EC2: {#NAME}: High CPU usage for last 60 min</name>
+                                            <expression>{Cloudwatch Template:cloudwatch.metric[600,CPUUtilization,AWS/EC2,Average,{$REGION},InstanceId={#INSTANCE_ID},{$ACCOUNT}].avg(60m)}&gt;90</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{avg(60m)}&gt;90</expression>
+                                    <name>EC2: {#NAME}: High CPU usage for last 60 min</name>
+                                    <priority>AVERAGE</priority>
+                                    <description>{ITEM.VALUE}</description>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
                             <name>Instance health {#NAME}</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[600,StatusCheckFailed_Instance,AWS/EC2,Maximum,{$REGION},InstanceId={#INSTANCE_ID},{$ACCOUNT}]</key>
                             <delay>300</delay>
-                            <history>90d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>fail(s)</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>System health</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{min(#3)}&gt;0</expression>
+                                    <name>EC2: Instance fail on {#NAME}</name>
+                                    <priority>HIGH</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
                             <name>Hypervisor health {#NAME}</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[600,StatusCheckFailed_System,AWS/EC2,Maximum,{$REGION},InstanceId={#INSTANCE_ID},{$ACCOUNT}]</key>
                             <delay>600</delay>
-                            <history>90d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>fail(s)</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>System health</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&gt;0</expression>
+                                    <name>EC2: Hypervisor fail on {#NAME}</name>
+                                    <priority>DISASTER</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                     </item_prototypes>
                     <trigger_prototypes>
                         <trigger_prototype>
-                            <expression>{Cloudwatch Template:cloudwatch.metric[600,StatusCheckFailed_System,AWS/EC2,Maximum,{$REGION},InstanceId={#INSTANCE_ID},{$ACCOUNT}].last()}&gt;0</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>EC2: Hypervisor fail on {#NAME}</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>5</priority>
-                            <description/>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Cloudwatch Template:cloudwatch.metric[600,StatusCheckFailed_Instance,AWS/EC2,Maximum,{$REGION},InstanceId={#INSTANCE_ID},{$ACCOUNT}].min(#3)}&gt;0</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>EC2: Instance fail on {#NAME}</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>4</priority>
-                            <description/>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
                             <expression>{Cloudwatch Template:cloudwatch.metric[600,CPUUtilization,AWS/EC2,Average,{$REGION},InstanceId={#INSTANCE_ID},{$ACCOUNT}].last()}=-1 or {Cloudwatch Template:cloudwatch.metric[600,StatusCheckFailed_System,AWS/EC2,Maximum,{$REGION},InstanceId={#INSTANCE_ID},{$ACCOUNT}].last()}=-1 or {Cloudwatch Template:cloudwatch.metric[600,StatusCheckFailed_Instance,AWS/EC2,Maximum,{$REGION},InstanceId={#INSTANCE_ID},{$ACCOUNT}].last()}=-1</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
                             <name>EC2: No datapoints for {#NAME}</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>1</priority>
+                            <status>DISABLED</status>
+                            <priority>INFO</priority>
                             <description>1. Your item is incorrectly configured (dimension, namespace, metric name could be wrong)&#13;
                                 2. Instance was terminated and this item will disappear after next discovery</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Cloudwatch Template:cloudwatch.metric[600,CPUUtilization,AWS/EC2,Average,{$REGION},InstanceId={#INSTANCE_ID},{$ACCOUNT}].last()}&gt;80</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>EC2: {#NAME}: High CPU usage</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>2</priority>
-                            <description>{ITEM.VALUE}</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies>
-                                <dependency>
-                                    <name>EC2: {#NAME}: High CPU usage for last 60 min</name>
-                                    <expression>{Cloudwatch Template:cloudwatch.metric[600,CPUUtilization,AWS/EC2,Average,{$REGION},InstanceId={#INSTANCE_ID},{$ACCOUNT}].avg(60m)}&gt;80</expression>
-                                    <recovery_expression/>
-                                </dependency>
-                            </dependencies>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Cloudwatch Template:cloudwatch.metric[600,CPUUtilization,AWS/EC2,Average,{$REGION},InstanceId={#INSTANCE_ID},{$ACCOUNT}].avg(60m)}&gt;80</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>EC2: {#NAME}: High CPU usage for last 60 min</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>3</priority>
-                            <description>{ITEM.VALUE}</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
                         </trigger_prototype>
                     </trigger_prototypes>
-                    <graph_prototypes/>
-                    <host_prototypes/>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                 </discovery_rule>
                 <discovery_rule>
                     <name>ELB Discovery</name>
-                    <type>10</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>EXTERNAL</type>
                     <key>aws.discovery[elb,{$REGION},{$ACCOUNT}]</key>
                     <delay>3600</delay>
-                    <status>0</status>
-                    <allowed_hosts/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <filter>
-                        <evaltype>0</evaltype>
-                        <formula/>
-                        <conditions/>
-                    </filter>
                     <lifetime>0</lifetime>
-                    <description/>
                     <item_prototypes>
                         <item_prototype>
                             <name>{#BALANCER_NAME} UnHealthyHostCount</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[600,UnHealthyHostCount,AWS/ELB,Maximum,{$REGION},LoadBalancerName={#BALANCER_NAME},{$ACCOUNT}]</key>
                             <delay>300</delay>
                             <history>30d</history>
                             <trends>60d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>hosts</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>ELB</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{min(#3)}&gt;0</expression>
+                                    <name>ELB: {#BALANCER_NAME} unhealthy nodes</name>
+                                    <priority>HIGH</priority>
+                                    <description>{ITEM.VALUE}</description>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
                             <name>{#BALANCER_NAME} active instances</name>
-                            <type>15</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>CALCULATED</type>
                             <key>instances[{#BALANCER_NAME}]</key>
                             <delay>1800</delay>
                             <history>30d</history>
                             <trends>60d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
                             <params>{#INSTANCES_COUNT}</params>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>ELB</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}=0</expression>
+                                    <name>ELB: {#BALANCER_NAME} has no active instances</name>
+                                    <priority>INFO</priority>
+                                    <description>This might be due to degraded instances or balancer being inactive.</description>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                     </item_prototypes>
-                    <trigger_prototypes>
-                        <trigger_prototype>
-                            <expression>{Cloudwatch Template:instances[{#BALANCER_NAME}].last()}=0</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>ELB: {#BALANCER_NAME} has no active instances</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>1</priority>
-                            <description>This might be due to degraded instances or balancer being inactive.</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Cloudwatch Template:cloudwatch.metric[600,UnHealthyHostCount,AWS/ELB,Maximum,{$REGION},LoadBalancerName={#BALANCER_NAME},{$ACCOUNT}].min(#3)}&gt;0</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>ELB: {#BALANCER_NAME} unhealthy nodes</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>4</priority>
-                            <description>{ITEM.VALUE}</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                    </trigger_prototypes>
-                    <graph_prototypes/>
-                    <host_prototypes/>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                 </discovery_rule>
                 <discovery_rule>
                     <name>ELBv2 Discovery</name>
-                    <type>10</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>EXTERNAL</type>
                     <key>aws.discovery[elbv2,{$REGION},{$ACCOUNT}]</key>
                     <delay>3600</delay>
-                    <status>0</status>
-                    <allowed_hosts/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <filter>
-                        <evaltype>0</evaltype>
-                        <formula/>
-                        <conditions/>
-                    </filter>
                     <lifetime>0</lifetime>
                     <description>AWS Application Load Balancer (or ELB v2) discovery rules.&#13;
                         &#13;
@@ -615,202 +205,61 @@
                     <item_prototypes>
                         <item_prototype>
                             <name>ELBv2: {#TARGET_GROUP_LOAD_BALANCER_NAME} {#TARGET_GROUP_NAME} UnHealthyHostCount</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[120,UnHealthyHostCount,AWS/ApplicationELB,Maximum,{$REGION},&quot;LoadBalancer={#TARGET_GROUP_LOAD_BALANCER_ARN},TargetGroup={#TARGET_GROUP_ARN}&quot;,{$ACCOUNT}]</key>
                             <delay>120</delay>
                             <history>30d</history>
                             <trends>60d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>hosts</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>ELBv2</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&gt;0</expression>
+                                    <name>ELBv2: {#TARGET_GROUP_LOAD_BALANCER_NAME} target group {#TARGET_GROUP_NAME} unhealthy nodes</name>
+                                    <priority>HIGH</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
                             <name>ELBv2: {#TARGET_GROUP_LOAD_BALANCER_NAME} target group {#TARGET_GROUP_NAME} total targets</name>
-                            <type>15</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>CALCULATED</type>
                             <key>instances[{#TARGET_GROUP_LOAD_BALANCER_NAME},{#TARGET_GROUP_NAME}]</key>
                             <delay>3600</delay>
                             <history>30d</history>
                             <trends>60d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
                             <params>{#TARGET_COUNT}</params>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>ELBv2</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}=-1</expression>
+                                    <name>ELBv2: No data points for {#TARGET_GROUP_LOAD_BALANCER_NAME} target {#TARGET_GROUP_NAME}</name>
+                                    <priority>INFO</priority>
+                                    <description>1. Your item is incorrectly configured (dimension, namespace, metric name could be wrong)&#13;
+                                2. Instance was terminated and this item will disappear after next discovery</description>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{last()}=0</expression>
+                                    <name>ELBv2: {#TARGET_GROUP_LOAD_BALANCER_NAME} target group {#TARGET_GROUP_NAME} has no active instances</name>
+                                    <priority>INFO</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                     </item_prototypes>
-                    <trigger_prototypes>
-                        <trigger_prototype>
-                            <expression>{Cloudwatch Template:instances[{#TARGET_GROUP_LOAD_BALANCER_NAME},{#TARGET_GROUP_NAME}].last()}=-1</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>ELBv2: No data points for {#TARGET_GROUP_LOAD_BALANCER_NAME} target {#TARGET_GROUP_NAME}</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>1</priority>
-                            <description>1. Your item is incorrectly configured (dimension, namespace, metric name could be wrong)&#13;
-                                2. Instance was terminated and this item will disappear after next discovery</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Cloudwatch Template:instances[{#TARGET_GROUP_LOAD_BALANCER_NAME},{#TARGET_GROUP_NAME}].last()}=0</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>ELBv2: {#TARGET_GROUP_LOAD_BALANCER_NAME} target group {#TARGET_GROUP_NAME} has no active instances</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>1</priority>
-                            <description/>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Cloudwatch Template:cloudwatch.metric[120,UnHealthyHostCount,AWS/ApplicationELB,Maximum,{$REGION},&quot;LoadBalancer={#TARGET_GROUP_LOAD_BALANCER_ARN},TargetGroup={#TARGET_GROUP_ARN}&quot;,{$ACCOUNT}].last()}&gt;0</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>ELBv2: {#TARGET_GROUP_LOAD_BALANCER_NAME} target group {#TARGET_GROUP_NAME} unhealthy nodes</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>4</priority>
-                            <description/>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                    </trigger_prototypes>
                     <graph_prototypes>
                         <graph_prototype>
                             <name>ELBv2 {#TARGET_GROUP_LOAD_BALANCER_NAME} {#TARGET_GROUP_NAME} UnHealthyHostCount</name>
-                            <width>900</width>
-                            <height>200</height>
-                            <yaxismin>0.0000</yaxismin>
-                            <yaxismax>100.0000</yaxismax>
-                            <show_work_period>1</show_work_period>
-                            <show_triggers>1</show_triggers>
-                            <type>0</type>
-                            <show_legend>1</show_legend>
-                            <show_3d>0</show_3d>
-                            <percent_left>0.0000</percent_left>
-                            <percent_right>0.0000</percent_right>
-                            <ymin_type_1>0</ymin_type_1>
-                            <ymax_type_1>0</ymax_type_1>
-                            <ymin_item_1>0</ymin_item_1>
-                            <ymax_item_1>0</ymax_item_1>
                             <graph_items>
                                 <graph_item>
-                                    <sortorder>0</sortorder>
-                                    <drawtype>0</drawtype>
                                     <color>1A7C11</color>
-                                    <yaxisside>0</yaxisside>
-                                    <calc_fnc>2</calc_fnc>
-                                    <type>0</type>
                                     <item>
                                         <host>Cloudwatch Template</host>
                                         <key>cloudwatch.metric[120,UnHealthyHostCount,AWS/ApplicationELB,Maximum,{$REGION},&quot;LoadBalancer={#TARGET_GROUP_LOAD_BALANCER_ARN},TargetGroup={#TARGET_GROUP_ARN}&quot;,{$ACCOUNT}]</key>
@@ -819,885 +268,230 @@
                             </graph_items>
                         </graph_prototype>
                     </graph_prototypes>
-                    <host_prototypes/>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                 </discovery_rule>
                 <discovery_rule>
                     <name>EMR discovery</name>
-                    <type>10</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>EXTERNAL</type>
                     <key>aws.discovery[emr,{$REGION},{$ACCOUNT}]</key>
                     <delay>3600</delay>
-                    <status>0</status>
-                    <allowed_hosts/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <filter>
-                        <evaltype>0</evaltype>
-                        <formula/>
-                        <conditions/>
-                    </filter>
                     <lifetime>0</lifetime>
-                    <description/>
                     <item_prototypes>
                         <item_prototype>
                             <name>{#CLUSTER_NAME} failed apps</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[600,AppsFailed,AWS/ElasticMapReduce,Average,{$REGION},JobFlowId={#CLUSTER_ID},{$ACCOUNT}]</key>
                             <delay>300</delay>
                             <history>30d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>app(s)</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>EMR</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>(({TRIGGER.VALUE}=0 and {last()}&gt;0 and {change()}&gt;0) or ({TRIGGER.VALUE}=1 and {delta(#4)}&gt;0))</expression>
+                                    <name>EMR: {#CLUSTER_NAME} has new failed YARN apps</name>
+                                    <priority>HIGH</priority>
+                                    <description>{ITEM.VALUE}</description>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
                             <name>{#CLUSTER_NAME} HDFS utilization</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[600,HDFSUtilization,AWS/ElasticMapReduce,Average,{$REGION},JobFlowId={#CLUSTER_ID},{$ACCOUNT}]</key>
                             <delay>300</delay>
                             <history>30d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>%</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>EMR</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{avg(#2)}&gt;80</expression>
+                                    <name>EMR: {#CLUSTER_NAME} high HDFS usage</name>
+                                    <priority>HIGH</priority>
+                                    <description>{ITEM.VALUE}</description>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
                             <name>{#CLUSTER_NAME} unhealthy nodes</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[600,MRUnhealthyNodes,AWS/ElasticMapReduce,Average,{$REGION},JobFlowId={#CLUSTER_ID},{$ACCOUNT}]</key>
                             <delay>300</delay>
                             <history>30d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>node(s)</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>EMR</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&gt;0</expression>
+                                    <name>EMR: Unhealthy nodes in {#CLUSTER_NAME}</name>
+                                    <priority>DISASTER</priority>
+                                    <description>{ITEM.VALUE}</description>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                     </item_prototypes>
                     <trigger_prototypes>
                         <trigger_prototype>
-                            <expression>{Cloudwatch Template:cloudwatch.metric[600,MRUnhealthyNodes,AWS/ElasticMapReduce,Average,{$REGION},JobFlowId={#CLUSTER_ID},{$ACCOUNT}].last()}&gt;0</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>EMR: Unhealthy nodes in {#CLUSTER_NAME}</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>5</priority>
-                            <description>{ITEM.VALUE}</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>(({TRIGGER.VALUE}=0 and {Cloudwatch Template:cloudwatch.metric[600,AppsFailed,AWS/ElasticMapReduce,Average,{$REGION},JobFlowId={#CLUSTER_ID},{$ACCOUNT}].last()}&gt;0 and {Cloudwatch Template:cloudwatch.metric[600,AppsFailed,AWS/ElasticMapReduce,Average,{$REGION},JobFlowId={#CLUSTER_ID},{$ACCOUNT}].change()}&gt;0) or ({TRIGGER.VALUE}=1 and {Cloudwatch Template:cloudwatch.metric[600,AppsFailed,AWS/ElasticMapReduce,Average,{$REGION},JobFlowId={#CLUSTER_ID},{$ACCOUNT}].delta(#4)}&gt;0))</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>EMR: {#CLUSTER_NAME} has new failed YARN apps</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>4</priority>
-                            <description>{ITEM.VALUE}</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
                             <expression>{Cloudwatch Template:cloudwatch.metric[600,HDFSUtilization,AWS/ElasticMapReduce,Average,{$REGION},JobFlowId={#CLUSTER_ID},{$ACCOUNT}].last()}=-1 or {Cloudwatch Template:cloudwatch.metric[600,MRUnhealthyNodes,AWS/ElasticMapReduce,Average,{$REGION},JobFlowId={#CLUSTER_ID},{$ACCOUNT}].last()}=-1</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
                             <name>EMR: {#CLUSTER_NAME} has no datapoints</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>1</priority>
+                            <priority>INFO</priority>
                             <description>1. Your item is incorrectly configured (dimension, namespace, metric name could be wrong)&#13;
                                 2. Instance was terminated and this item will disappear after next discovery</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Cloudwatch Template:cloudwatch.metric[600,HDFSUtilization,AWS/ElasticMapReduce,Average,{$REGION},JobFlowId={#CLUSTER_ID},{$ACCOUNT}].avg(#2)}&gt;80</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>EMR: {#CLUSTER_NAME} high HDFS usage</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>4</priority>
-                            <description>{ITEM.VALUE}</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
                         </trigger_prototype>
                     </trigger_prototypes>
-                    <graph_prototypes/>
-                    <host_prototypes/>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                 </discovery_rule>
                 <discovery_rule>
                     <name>Lambda Discovery</name>
-                    <type>10</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>EXTERNAL</type>
                     <key>aws.discovery[lambda,{$REGION},{$ACCOUNT}]</key>
                     <delay>3600</delay>
-                    <status>0</status>
-                    <allowed_hosts/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <filter>
-                        <evaltype>0</evaltype>
-                        <formula/>
-                        <conditions/>
-                    </filter>
                     <lifetime>0</lifetime>
                     <description>AWS Lambda discovery rules.</description>
                     <item_prototypes>
                         <item_prototype>
                             <name>{#LAMBDA_FUNCTION_NAME} errors</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[300,Errors,AWS/Lambda,Sum,{$REGION},FunctionName={#LAMBDA_FUNCTION_NAME},{$ACCOUNT}]</key>
                             <delay>300s</delay>
                             <history>30d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>Lambda</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&gt;0</expression>
+                                    <name>{#LAMBDA_FUNCTION_NAME} has errors</name>
+                                    <priority>AVERAGE</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
                             <name>{#LAMBDA_FUNCTION_NAME} invocations</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[300,Invocations,AWS/Lambda,Average,{$REGION},FunctionName={#LAMBDA_FUNCTION_NAME},{$ACCOUNT}]</key>
                             <delay>300s</delay>
                             <history>30d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>Lambda</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
                         </item_prototype>
                         <item_prototype>
                             <name>{#LAMBDA_FUNCTION_NAME} throttles</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[300,Throttles,AWS/Lambda,Sum,{$REGION},FunctionName={#LAMBDA_FUNCTION_NAME},{$ACCOUNT}]</key>
                             <delay>300s</delay>
                             <history>30d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>Lambda</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&gt;0</expression>
+                                    <name>{#LAMBDA_FUNCTION_NAME} is being throttled</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                     </item_prototypes>
-                    <trigger_prototypes>
-                        <trigger_prototype>
-                            <expression>{Cloudwatch Template:cloudwatch.metric[300,Errors,AWS/Lambda,Sum,{$REGION},FunctionName={#LAMBDA_FUNCTION_NAME},{$ACCOUNT}].last()}&gt;0</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>{#LAMBDA_FUNCTION_NAME} has errors</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>3</priority>
-                            <description/>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Cloudwatch Template:cloudwatch.metric[300,Throttles,AWS/Lambda,Sum,{$REGION},FunctionName={#LAMBDA_FUNCTION_NAME},{$ACCOUNT}].last()}&gt;0</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>{#LAMBDA_FUNCTION_NAME} is being throttled</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>2</priority>
-                            <description/>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                    </trigger_prototypes>
-                    <graph_prototypes/>
-                    <host_prototypes/>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                 </discovery_rule>
                 <discovery_rule>
                     <name>RDS discovery</name>
-                    <type>10</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>EXTERNAL</type>
                     <key>aws.discovery[rds,{$REGION},{$ACCOUNT}]</key>
                     <delay>3600;3600/1-5,00:00-24:00;21600/6-7,00:00-24:00</delay>
-                    <status>0</status>
-                    <allowed_hosts/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <filter>
-                        <evaltype>0</evaltype>
-                        <formula/>
-                        <conditions/>
-                    </filter>
                     <lifetime>0</lifetime>
-                    <description/>
                     <item_prototypes>
                         <item_prototype>
                             <name>{#RDS_ID} CPU usage</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[600,CPUUtilization,AWS/RDS,Average,{$REGION},DBInstanceIdentifier={#RDS_ID},{$ACCOUNT}]</key>
                             <delay>600</delay>
-                            <history>90d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>%</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>RDS CPU</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{avg(#2)}&gt;80</expression>
+                                    <name>RDS: {#RDS_ID} high CPU usage</name>
+                                    <priority>HIGH</priority>
+                                    <description>{ITEM.VALUE}</description>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
                             <name>{#RDS_ID} free storage space</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[600,FreeStorageSpace,AWS/RDS,Average,{$REGION},DBInstanceIdentifier={#RDS_ID},{$ACCOUNT}]</key>
                             <delay>600</delay>
-                            <history>90d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
                             <units>B</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>RDS Storage</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
                         </item_prototype>
                         <item_prototype>
                             <name>{#RDS_ID} % free storage space</name>
-                            <type>15</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>CALCULATED</type>
                             <key>freepercent[{#RDS_ID}]</key>
                             <delay>600</delay>
-                            <history>90d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>%</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
                             <params>last(&quot;cloudwatch.metric[600,FreeStorageSpace,AWS/RDS,Average,{$REGION},DBInstanceIdentifier={#RDS_ID},{$ACCOUNT}]&quot;)/({#STORAGE}/100)</params>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>RDS Storage</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&lt;20</expression>
+                                    <name>RDS: {#RDS_ID} low on space</name>
+                                    <priority>HIGH</priority>
+                                    <description>{ITEM.VALUE} left</description>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                     </item_prototypes>
                     <trigger_prototypes>
                         <trigger_prototype>
                             <expression>{Cloudwatch Template:cloudwatch.metric[600,CPUUtilization,AWS/RDS,Average,{$REGION},DBInstanceIdentifier={#RDS_ID},{$ACCOUNT}].last()}=-1 or {Cloudwatch Template:cloudwatch.metric[600,FreeStorageSpace,AWS/RDS,Average,{$REGION},DBInstanceIdentifier={#RDS_ID},{$ACCOUNT}].last()}=-1</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
                             <name>RDS: {#RDS_ID} has no datapoints</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>1</priority>
+                            <priority>INFO</priority>
                             <description>1. Your item is incorrectly configured (dimension, namespace, metric name could be wrong)&#13;
                                 2. Instance was terminated and this item will disappear after next discovery</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Cloudwatch Template:cloudwatch.metric[600,CPUUtilization,AWS/RDS,Average,{$REGION},DBInstanceIdentifier={#RDS_ID},{$ACCOUNT}].avg(#2)}&gt;80</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>RDS: {#RDS_ID} high CPU usage</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>4</priority>
-                            <description>{ITEM.VALUE}</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Cloudwatch Template:freepercent[{#RDS_ID}].last()}&lt;20</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>RDS: {#RDS_ID} low on space</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>4</priority>
-                            <description>{ITEM.VALUE} left</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
                         </trigger_prototype>
                     </trigger_prototypes>
                     <graph_prototypes>
                         <graph_prototype>
                             <name>{#RDS_ID} free storage space</name>
-                            <width>900</width>
                             <height>300</height>
-                            <yaxismin>0.0000</yaxismin>
-                            <yaxismax>100.0000</yaxismax>
-                            <show_work_period>1</show_work_period>
-                            <show_triggers>1</show_triggers>
-                            <type>0</type>
-                            <show_legend>1</show_legend>
-                            <show_3d>0</show_3d>
-                            <percent_left>0.0000</percent_left>
-                            <percent_right>0.0000</percent_right>
-                            <ymin_type_1>0</ymin_type_1>
-                            <ymax_type_1>0</ymax_type_1>
-                            <ymin_item_1>0</ymin_item_1>
-                            <ymax_item_1>0</ymax_item_1>
                             <graph_items>
                                 <graph_item>
-                                    <sortorder>0</sortorder>
-                                    <drawtype>0</drawtype>
                                     <color>1A7C11</color>
-                                    <yaxisside>0</yaxisside>
-                                    <calc_fnc>2</calc_fnc>
-                                    <type>0</type>
                                     <item>
                                         <host>Cloudwatch Template</host>
                                         <key>cloudwatch.metric[600,FreeStorageSpace,AWS/RDS,Average,{$REGION},DBInstanceIdentifier={#RDS_ID},{$ACCOUNT}]</key>
@@ -1706,225 +500,56 @@
                             </graph_items>
                         </graph_prototype>
                     </graph_prototypes>
-                    <host_prototypes/>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                 </discovery_rule>
                 <discovery_rule>
                     <name>S3 discovery</name>
-                    <type>10</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>EXTERNAL</type>
                     <key>aws.discovery[s3,{$REGION},{$ACCOUNT}]</key>
                     <delay>3600</delay>
-                    <status>0</status>
-                    <allowed_hosts/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <filter>
-                        <evaltype>0</evaltype>
-                        <formula/>
-                        <conditions/>
-                    </filter>
                     <lifetime>0</lifetime>
-                    <description/>
                     <item_prototypes>
                         <item_prototype>
                             <name>{#BUCKET_NAME} Bucket Size</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[600,BucketSizeBytes,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=StandardStorage&quot;,{$ACCOUNT},172800]</key>
                             <delay>600</delay>
-                            <history>90d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>Bytes</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>S3</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
                         </item_prototype>
                         <item_prototype>
                             <name>{#BUCKET_NAME} Number Of Objects</name>
-                            <type>10</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>EXTERNAL</type>
                             <key>cloudwatch.metric[600,NumberOfObjects,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=AllStorageTypes&quot;,{$ACCOUNT},172800]</key>
                             <delay>600</delay>
-                            <history>90d</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>Objects</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>S3</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
-                            <preprocessing/>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
-                            <master_item/>
                         </item_prototype>
                     </item_prototypes>
                     <trigger_prototypes>
                         <trigger_prototype>
-                            <expression>{Cloudwatch Template:cloudwatch.metric[600,BucketSizeBytes,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=StandardStorage&quot;,{$ACCOUNT},172800].last()}=-1 or&#13;
-                                {Cloudwatch Template:cloudwatch.metric[600,NumberOfObjects,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=AllStorageTypes&quot;,{$ACCOUNT},172800].last()}=-1</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
+                            <expression>{Cloudwatch Template:cloudwatch.metric[600,BucketSizeBytes,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=StandardStorage&quot;,{$ACCOUNT},172800].last()}=-1 or {Cloudwatch Template:cloudwatch.metric[600,NumberOfObjects,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=AllStorageTypes&quot;,{$ACCOUNT},172800].last()}=-1</expression>
                             <name>S3: {#BUCKET_NAME} has no datapoints</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>1</priority>
+                            <priority>INFO</priority>
                             <description>1. Your item is incorrectly configured (dimension, namespace, metric name could be wrong)&#13;
                                 2. Instance was terminated and this item will disappear after next discovery</description>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
                         </trigger_prototype>
                     </trigger_prototypes>
                     <graph_prototypes>
                         <graph_prototype>
                             <name>{#BUCKET_NAME} Bucket Size</name>
-                            <width>900</width>
-                            <height>200</height>
-                            <yaxismin>0.0000</yaxismin>
-                            <yaxismax>100.0000</yaxismax>
-                            <show_work_period>1</show_work_period>
-                            <show_triggers>1</show_triggers>
-                            <type>0</type>
-                            <show_legend>1</show_legend>
-                            <show_3d>0</show_3d>
-                            <percent_left>0.0000</percent_left>
-                            <percent_right>0.0000</percent_right>
-                            <ymin_type_1>0</ymin_type_1>
-                            <ymax_type_1>0</ymax_type_1>
-                            <ymin_item_1>0</ymin_item_1>
-                            <ymax_item_1>0</ymax_item_1>
                             <graph_items>
                                 <graph_item>
-                                    <sortorder>0</sortorder>
-                                    <drawtype>0</drawtype>
                                     <color>1A7C11</color>
-                                    <yaxisside>0</yaxisside>
-                                    <calc_fnc>2</calc_fnc>
-                                    <type>0</type>
                                     <item>
                                         <host>Cloudwatch Template</host>
                                         <key>cloudwatch.metric[600,BucketSizeBytes,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=StandardStorage&quot;,{$ACCOUNT},172800]</key>
@@ -1934,29 +559,9 @@
                         </graph_prototype>
                         <graph_prototype>
                             <name>{#BUCKET_NAME} Number of Objects</name>
-                            <width>900</width>
-                            <height>200</height>
-                            <yaxismin>0.0000</yaxismin>
-                            <yaxismax>100.0000</yaxismax>
-                            <show_work_period>1</show_work_period>
-                            <show_triggers>1</show_triggers>
-                            <type>0</type>
-                            <show_legend>1</show_legend>
-                            <show_3d>0</show_3d>
-                            <percent_left>0.0000</percent_left>
-                            <percent_right>0.0000</percent_right>
-                            <ymin_type_1>0</ymin_type_1>
-                            <ymax_type_1>0</ymax_type_1>
-                            <ymin_item_1>0</ymin_item_1>
-                            <ymax_item_1>0</ymax_item_1>
                             <graph_items>
                                 <graph_item>
-                                    <sortorder>0</sortorder>
-                                    <drawtype>0</drawtype>
                                     <color>1A7C11</color>
-                                    <yaxisside>0</yaxisside>
-                                    <calc_fnc>2</calc_fnc>
-                                    <type>0</type>
                                     <item>
                                         <host>Cloudwatch Template</host>
                                         <key>cloudwatch.metric[600,NumberOfObjects,AWS/S3,Average,{$REGION},&quot;BucketName={#BUCKET_NAME},StorageType=AllStorageTypes&quot;,{$ACCOUNT},172800]</key>
@@ -1965,40 +570,16 @@
                             </graph_items>
                         </graph_prototype>
                     </graph_prototypes>
-                    <host_prototypes/>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                 </discovery_rule>
             </discovery_rules>
-            <httptests/>
             <macros>
                 <macro>
                     <macro>{$ACCOUNT}</macro>
-                    <value/>
                 </macro>
                 <macro>
                     <macro>{$REGION}</macro>
-                    <value/>
                 </macro>
             </macros>
-            <templates/>
-            <screens/>
         </template>
     </templates>
 </zabbix_export>
