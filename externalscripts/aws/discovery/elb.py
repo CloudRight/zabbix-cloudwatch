@@ -1,5 +1,4 @@
-#!/usr/bin/env python2
-from basic_discovery import BasicDiscoverer
+from .basic_discovery import BasicDiscoverer
 
 
 class Discoverer(BasicDiscoverer):
@@ -8,8 +7,8 @@ class Discoverer(BasicDiscoverer):
         data = list()
         for balancer in response["LoadBalancerDescriptions"]:
             ldd = {
-                    "{#BALANCER_NAME}":      balancer["LoadBalancerName"],
-                    "{#INSTANCES_COUNT}":    len(balancer["Instances"])
+                "{#BALANCER_NAME}": balancer["LoadBalancerName"],
+                "{#INSTANCES_COUNT}": len(balancer["Instances"]),
             }
             data.append(ldd)
         return data

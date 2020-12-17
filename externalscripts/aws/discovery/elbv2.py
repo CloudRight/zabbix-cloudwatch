@@ -1,7 +1,7 @@
-#!/usr/bin/env python2
-from basic_discovery import BasicDiscoverer
+from .basic_discovery import BasicDiscoverer
 
 import re
+
 
 class Discoverer(BasicDiscoverer):
     def discovery(self, *args):
@@ -20,27 +20,43 @@ class Discoverer(BasicDiscoverer):
             for LoadBalancerArn in TargetGroup["LoadBalancerArns"]:
 
                 if LoadBalancerArn not in LoadBalancersDescrByArn:
-                    LoadBalancersDescrByArn[LoadBalancerArn] = self.client.describe_load_balancers(
+                    LoadBalancersDescrByArn[
+                        LoadBalancerArn
+                    ] = self.client.describe_load_balancers(
                         LoadBalancerArns=[LoadBalancerArn]
-                    )['LoadBalancers'][0]
+                    )[
+                        "LoadBalancers"
+                    ][
+                        0
+                    ]
 
                 target_health = self.client.describe_target_health(
                     TargetGroupArn=TargetGroup["TargetGroupArn"]
                 )
 
                 # Get the short ARNs that are effectivelly used when querying for metrics
-                Arn = re.search(":(targetgroup/.*)", TargetGroup["TargetGroupArn"]).group(1)
-                LoadBalancerShortArn = re.search(":loadbalancer/(.*)", LoadBalancerArn).group(1)
+                Arn = re.search(
+                    ":(targetgroup/.*)", TargetGroup["TargetGroupArn"]
+                ).group(1)
+                LoadBalancerShortArn = re.search(
+                    ":loadbalancer/(.*)", LoadBalancerArn
+                ).group(1)
 
                 # Final discovery entry
                 ldd = {
                     "{#TARGET_GROUP_NAME}": TargetGroup["TargetGroupName"],
                     "{#TARGET_GROUP_ARN}": Arn,
-                    "{#TARGET_GROUP_PORT}": TargetGroup["Port"] if TargetGroup["TargetType"] != "lambda" else None,
-                    "{#TARGET_GROUP_LOAD_BALANCER_NAME}": LoadBalancersDescrByArn[LoadBalancerArn]['LoadBalancerName'],
-                    "{#TARGET_GROUP_LOAD_BALANCER_DNS_NAME}": LoadBalancersDescrByArn[LoadBalancerArn]['DNSName'],
+                    "{#TARGET_GROUP_PORT}": TargetGroup["Port"]
+                    if TargetGroup["TargetType"] != "lambda"
+                    else None,
+                    "{#TARGET_GROUP_LOAD_BALANCER_NAME}": LoadBalancersDescrByArn[
+                        LoadBalancerArn
+                    ]["LoadBalancerName"],
+                    "{#TARGET_GROUP_LOAD_BALANCER_DNS_NAME}": LoadBalancersDescrByArn[
+                        LoadBalancerArn
+                    ]["DNSName"],
                     "{#TARGET_GROUP_LOAD_BALANCER_ARN}": LoadBalancerShortArn,
-                    "{#TARGET_COUNT}": len(target_health['TargetHealthDescriptions']),
+                    "{#TARGET_COUNT}": len(target_health["TargetHealthDescriptions"]),
                 }
 
                 try:

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd "${DIR}/aws" || exit 1
+
+if [ $# -gt 4 ]; then
+  ./aws_discovery.py --service "${1}" --region "${2}" --account "${3}" --assume-role "${4}" --args "${@:5}"
+else
+  ./aws_discovery.py --service "${1}" --region "${2}" --account "${3}" --assume-role "${4}"
+fi

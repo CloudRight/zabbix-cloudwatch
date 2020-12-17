@@ -1,11 +1,11 @@
-#!/usr/bin/env python2
-from basic_discovery import BasicDiscoverer
+from .basic_discovery import BasicDiscoverer
 
 
 class Discoverer(BasicDiscoverer):
     def discovery(self, *args):
-        response = self.client.describe_instances(Filters=[
-            {"Name": "instance-state-name", "Values": ["running"]}])
+        response = self.client.describe_instances(
+            Filters=[{"Name": "instance-state-name", "Values": ["running"]}]
+        )
         instances = list()
         for reservation in response["Reservations"]:
             instances.extend(reservation["Instances"])
@@ -13,8 +13,8 @@ class Discoverer(BasicDiscoverer):
         for instance in instances:
             name = ""
             ldd = {
-                    "{#INSTANCE_ID}":   instance["InstanceId"],
-                    "{#PRIVATE_IP}":    instance["PrivateIpAddress"]
+                "{#INSTANCE_ID}": instance["InstanceId"],
+                "{#PRIVATE_IP}": instance["PrivateIpAddress"],
             }
             if "Tags" not in instance.keys():
                 name = instance["InstanceId"]

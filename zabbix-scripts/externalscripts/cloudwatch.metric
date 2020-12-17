@@ -1,8 +1,0 @@
-#!/bin/bash
-ZABBIX_HOME=/usr/lib/zabbix/scripts
-cd $ZABBIX_HOME
-if [ "$8" ]; then
-    ./cloudwatch.metric --interval $1 --metric $2 --namespace $3 --statistic $4 --region $5 --dimension $6 --account $7 --history $8
-else
-    ./cloudwatch.metric --interval $1 --metric $2 --namespace $3 --statistic $4 --region $5 --dimension $6 --account $7
-fi

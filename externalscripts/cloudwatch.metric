@@ -1,0 +1,10 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd "${DIR}/aws" || exit 1
+
+if [ "${9}" ]; then
+    ./cloudwatch_metric.py --interval "${1}" --metric "${2}" --namespace "${3}" --statistic "${4}" --region "${5}" --dimension "${6}" --account "${7}" --assume-role "${8}" --history "${9}"
+else
+    ./cloudwatch_metric.py --interval "${1}" --metric "${2}" --namespace "${3}" --statistic "${4}" --region "${5}" --dimension "${6}" --account "${7}" --assume-role "${8}"
+fi
