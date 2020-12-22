@@ -55,23 +55,25 @@ You can deal with your configuration in a few different ways:
 ## Covered services
 The default template includes discovery and items for the following services:
 
-| Service         | Discovery API Call           | AWS Managed Policy
-| --------------- | ---------------------------- | ----------------------------------- |
-| **EC2**         | `describe_instances()`       | `AmazonEC2ReadOnlyAccess`           |
-| **CloudFront**  | `list_distributions()`       | `CloudFrontReadOnlyAccess`          |           
-| **ElastiCache** | `describe_cache_clusters()`  | `AmazonElastiCacheReadOnlyAccess`   |
-| **RDS**         | `describe_db_instances()`    | `AmazonRDSReadOnlyAccess`           |
-| **ELB**         | `describe_load_balancers()`  | `ElasticLoadBalancingReadOnly`      |
-| **EMR**         | `list_clusters()`            | `AmazonElastiCacheReadOnlyAccess`   |
-| **ELBv2 (ALB)** | `describe_target_groups()`   | `ElasticLoadBalancingReadOnly`      |
-| **S3**          | `list_buckets()`             | `AmazonS3ReadOnlyAccess`            |
+| Service         | Discovery API Call                    | AWS Managed Policy
+| --------------- | ------------------------------------- | ----------------------------------- |
+| **EC2**         | `describe_instances()`                | `AmazonEC2ReadOnlyAccess`           |
+| **CloudFront**  | `list_distributions()`                | `CloudFrontReadOnlyAccess`          |           
+| **ElastiCache** | `describe_cache_clusters()`           | `AmazonElastiCacheReadOnlyAccess`   |
+| **RDS**         | `describe_db_instances()`             | `AmazonRDSReadOnlyAccess`           |
+| **ELB**         | `describe_load_balancers()`           | `ElasticLoadBalancingReadOnly`      |
+| **EMR**         | `list_clusters()`                     | `AmazonElastiCacheReadOnlyAccess`   |
+| **ELBv2 (ALB)** | `describe_target_groups()`            | `ElasticLoadBalancingReadOnly`      |
+| **S3**          | `list_buckets()`                      | `AmazonS3ReadOnlyAccess`            |
+| **ECS**         | `list_clusters()` / `list_services()` | `n/a`                               |
 
 Alternatively you can assign your user the AWS Managed Policy `ViewOnlyAccess` which allows `List*` and `Describe*` calls across all AWS Services.
 
-## Todo:
-- [ ] Create CloudFront template
-- [ ] Create ElastiCache template
-- [ ] Provide separate templates for using _without_ autodiscovery (Host per item)
+## Roadmap:
+- CloudFront template
+- ElastiCache template
+- ECS template
+- Separate templates for using _without_ autodiscovery (Host created per item)
 
 ## Credits
 - [@wawastein](https://github.com/wawastein) for creating the initial module
