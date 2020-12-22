@@ -1,0 +1,1215 @@
+zabbix_export:
+  version: '5.2'
+  date: '2020-12-22T13:27:44Z'
+  groups:
+    -
+      name: AWS/CloudFront
+    -
+      name: AWS/EC2
+    -
+      name: AWS/ECS
+    -
+      name: AWS/ElastiCache
+    -
+      name: AWS/ELB
+    -
+      name: AWS/ELBv2
+    -
+      name: AWS/EMR
+    -
+      name: AWS/Lamba
+    -
+      name: AWS/RDS
+    -
+      name: AWS/RDSCluster
+    -
+      name: AWS/S3
+    -
+      name: Templates
+    -
+      name: Templates/AWS
+  templates:
+    -
+      template: 'AWS CloudFront Template'
+      name: 'AWS CloudFront Template'
+      groups:
+        -
+          name: Templates/AWS
+      applications:
+        -
+          name: CloudFront
+      items:
+        -
+          name: '{$CF_ID} 4xxErrorRate'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,4xxErrorRate,"AWS/CloudFront",Maximum,us-east-1,"DistributionId={$CF_ID},Region=Global",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
+          units: '%'
+          applications:
+            -
+              name: CloudFront
+        -
+          name: '{$CF_ID} 5xxErrorRate'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,5xxErrorRate,"AWS/CloudFront",Maximum,us-east-1,"DistributionId={$CF_ID},Region=Global",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
+          units: '%'
+          applications:
+            -
+              name: CloudFront
+        -
+          name: '{$CF_ID} BytesDownloaded'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,BytesDownloaded,"AWS/CloudFront",Sum,us-east-1,"DistributionId={$CF_ID},Region=Global",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
+          units: B
+          applications:
+            -
+              name: CloudFront
+        -
+          name: '{$CF_ID} BytesUploaded'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,BytesUploaded,"AWS/CloudFront",Sum,us-east-1,"DistributionId={$CF_ID},Region=Global",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
+          units: B
+          applications:
+            -
+              name: CloudFront
+        -
+          name: '{$CF_ID} CacheHitRate'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,CacheHitRate,"AWS/CloudFront",Average,us-east-1,"DistributionId={$CF_ID},Region=Global",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
+          units: '%'
+          applications:
+            -
+              name: CloudFront
+        -
+          name: '{$CF_ID} OriginLatency'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,OriginLatency,"AWS/CloudFront",Percentile,us-east-1,"DistributionId={$CF_ID},Region=Global",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
+          units: milliseconds
+          applications:
+            -
+              name: CloudFront
+        -
+          name: '{$CF_ID} Requests'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,Requests,"AWS/CloudFront",Sum,us-east-1,"DistributionId={$CF_ID},Region=Global",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          units: requests
+          applications:
+            -
+              name: CloudFront
+        -
+          name: '{$CF_ID} TotalErrorRate'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,TotalErrorRate,"AWS/CloudFront",Average,us-east-1,"DistributionId={$CF_ID},Region=Global",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          units: errors
+          applications:
+            -
+              name: CloudFront
+      tags:
+        -
+          tag: aws_service
+          value: cloudfront
+    -
+      template: 'AWS Discovery Template'
+      name: 'AWS Discovery Template'
+      description: 'Discovers AWS Services and creates individual Zabbix Hosts.'
+      groups:
+        -
+          name: Templates
+      discovery_rules:
+        -
+          name: 'Cloudfront Distribution'
+          type: EXTERNAL
+          key: 'aws.discovery[cloudfront,{$AWS_REGION},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: '1h;1h/1-5,00:00-24:00;6h/6-7,00:00-24:00'
+          lifetime: '0'
+          host_prototypes:
+            -
+              host: 'cf_{#ID}'
+              name: '[CF] {#CNAME}'
+              group_links:
+                -
+                  group:
+                    name: AWS/CloudFront
+              templates:
+                -
+                  name: 'AWS CloudFront Template'
+              macros:
+                -
+                  macro: '{$CF_CNAME}'
+                  value: '{#CNAME}'
+                  description: '(Unique) CNAME of CloudFront distribution'
+                -
+                  macro: '{$CF_ID}'
+                  value: '{#ID}'
+                  description: 'ID of CloudFront distributions'
+              tags:
+                -
+                  tag: aws_service
+                  value: cloudfront
+        -
+          name: 'EC2 Instance'
+          type: EXTERNAL
+          key: 'aws.discovery[ec2,{$AWS_REGION},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: '1h;1h/1-5,00:00-24:00;6h/6-7,00:00-24:00'
+          lifetime: '0'
+          host_prototypes:
+            -
+              host: 'ec2_{#NAME}'
+              name: '[EC2] {#NAME}'
+              group_links:
+                -
+                  group:
+                    name: AWS/EC2
+              templates:
+                -
+                  name: 'AWS EC2 Template'
+              macros:
+                -
+                  macro: '{$INSTANCE_ID}'
+                  value: '{#INSTANCE_ID}'
+                  description: 'ID of the EC2 instance'
+                -
+                  macro: '{$INSTANCE_IP}'
+                  value: '{#PRIVATE_IP}'
+                  description: 'IP of the EC2 instance'
+                -
+                  macro: '{$INSTANCE_NAME}'
+                  value: '{#NAME}'
+                  description: 'Name of the EC2 instance'
+              tags:
+                -
+                  tag: aws_service
+                  value: ec2
+              custom_interfaces: 'YES'
+              interfaces:
+                -
+                  ip: '{#PRIVATE_IP}'
+        -
+          name: 'ECS Task'
+          type: EXTERNAL
+          key: 'aws.discovery[ecs,{$AWS_REGION},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: '1h;1h/1-5,00:00-24:00;6h/6-7,00:00-24:00'
+          lifetime: '0'
+          host_prototypes:
+            -
+              host: 'ecs_{#SERVICENAME}'
+              name: '[ECS] {#SERVICENAME}'
+              group_links:
+                -
+                  group:
+                    name: AWS/ECS
+              templates:
+                -
+                  name: 'AWS ECS Template'
+              macros:
+                -
+                  macro: '{$ECS_CLUSTERNAME}'
+                  value: '{#CLUSTERNAME}'
+                  description: 'Name of ECS Cluster'
+                -
+                  macro: '{$ECS_SERVICENAME}'
+                  value: '{#SERVICENAME}'
+                  description: 'Name of Service within ECS Cluster'
+              tags:
+                -
+                  tag: aws_service
+                  value: ecs
+        -
+          name: 'ElastiCache Instance'
+          type: EXTERNAL
+          key: 'aws.discovery[elasticache,{$AWS_REGION},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: '1h;1h/1-5,00:00-24:00;6h/6-7,00:00-24:00'
+          lifetime: '0'
+          host_prototypes:
+            -
+              host: 'ec_{#CACHE_CACHECLUSTERID}'
+              name: '[EC] {#CACHE_CACHECLUSTERID}'
+              group_links:
+                -
+                  group:
+                    name: AWS/ElastiCache
+              templates:
+                -
+                  name: 'AWS ElastiCache Template'
+              macros:
+                -
+                  macro: '{$CACHE_CACHECLUSTERID}'
+                  value: '{#CACHE_CACHECLUSTERID}'
+                -
+                  macro: '{$CACHE_CACHECLUSTERSTATUS}'
+                  value: '{#CACHE_CACHECLUSTERSTATUS}'
+                -
+                  macro: '{$CACHE_CACHESUBNETGROUPNAME}'
+                  value: '{#CACHE_CACHESUBNETGROUPNAME}'
+                -
+                  macro: '{$CACHE_ENGINE}'
+                  value: '{#CACHE_ENGINE}'
+                -
+                  macro: '{$CACHE_MEMORY}'
+                  value: '{#MEMORY}'
+                -
+                  macro: '{$CACHE_REPLICATIONGROUPID}'
+                  value: '{#CACHE_REPLICATIONGROUPID}'
+              tags:
+                -
+                  tag: aws_service
+                  value: elasticache
+                -
+                  tag: aws_service_sub
+                  value: '{#CACHE_ENGINE}'
+        -
+          name: 'ELB Instance'
+          type: EXTERNAL
+          key: 'aws.discovery[elb,{$AWS_REGION},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: '1h;1h/1-5,00:00-24:00;6h/6-7,00:00-24:00'
+          lifetime: '0'
+          host_prototypes:
+            -
+              host: 'elb_{#BALANCER_NAME}'
+              name: '[ELB] {#BALANCER_NAME}'
+              group_links:
+                -
+                  group:
+                    name: AWS/ELB
+              templates:
+                -
+                  name: 'AWS ELB Template'
+              macros:
+                -
+                  macro: '{$BALANCER_NAME}'
+                  value: '{#BALANCER_NAME}'
+                  description: 'Name of loadbalancer'
+              tags:
+                -
+                  tag: aws_service
+                  value: elb
+        -
+          name: 'ELBv2 Instance'
+          type: EXTERNAL
+          key: 'aws.discovery[elbv2,{$AWS_REGION},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: '1h;1h/1-5,00:00-24:00;6h/6-7,00:00-24:00'
+          filter:
+            conditions:
+              -
+                macro: '{#TARGET_COUNT}'
+                value: ^0$
+                operator: NOT_MATCHES_REGEX
+                formulaid: A
+          lifetime: '0'
+          host_prototypes:
+            -
+              host: 'elbv2_{#TARGET_GROUP_NAME}'
+              name: '[ALB] {#TARGET_GROUP_NAME}'
+              group_links:
+                -
+                  group:
+                    name: AWS/ELBv2
+              templates:
+                -
+                  name: 'AWS ELBv2 Template'
+              macros:
+                -
+                  macro: '{$TARGET_COUNT}'
+                  value: '{#TARGET_COUNT}'
+                  description: 'Number of targets'
+                -
+                  macro: '{$TARGET_GROUP_ARN}'
+                  value: '{#TARGET_GROUP_ARN}'
+                  description: 'ARN of Target Group'
+                -
+                  macro: '{$TARGET_GROUP_LOAD_BALANCER_ARN}'
+                  value: '{#TARGET_GROUP_LOAD_BALANCER_ARN}'
+                  description: 'ARN of Target Group Loadbalancer'
+                -
+                  macro: '{$TARGET_GROUP_LOAD_BALANCER_DNS_NAME}'
+                  value: '{#TARGET_GROUP_LOAD_BALANCER_DNS_NAME}'
+                  description: 'DNS Name of Loadbalancer'
+                -
+                  macro: '{$TARGET_GROUP_LOAD_BALANCER_NAME}'
+                  value: '{#TARGET_GROUP_LOAD_BALANCER_NAME}'
+                  description: 'Name of ALB'
+                -
+                  macro: '{$TARGET_GROUP_NAME}'
+                  value: '{#TARGET_GROUP_NAME}'
+                  description: 'Target group used by ALB'
+                -
+                  macro: '{$TARGET_GROUP_PORT}'
+                  value: '{#TARGET_GROUP_PORT}'
+                  description: 'Port to route traffic to'
+                -
+                  macro: '{$TARGET_GROUP_VPC_ID}'
+                  value: '{#TARGET_GROUP_VPC_ID}'
+                  description: 'VPC ID of Target Group'
+              tags:
+                -
+                  tag: aws_service
+                  value: elbv2
+        -
+          name: 'EMR Instance'
+          type: EXTERNAL
+          key: 'aws.discovery[emr,{$AWS_REGION},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: '1h;1h/1-5,00:00-24:00;6h/6-7,00:00-24:00'
+          lifetime: '0'
+          host_prototypes:
+            -
+              host: 'emr_{#CLUSTER_ID}'
+              name: '[EMR] {#CLUSTER_ID}'
+              group_links:
+                -
+                  group:
+                    name: AWS/EMR
+              templates:
+                -
+                  name: 'AWS EMR Template'
+              macros:
+                -
+                  macro: '{$CLUSTER_ID}'
+                  value: '{#CLUSTER_ID}'
+                  description: 'ID of EMR Cluster'
+              tags:
+                -
+                  tag: aws_service
+                  value: emr
+        -
+          name: 'Lambda Function'
+          type: EXTERNAL
+          key: 'aws.discovery[lambda,{$AWS_REGION},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: '1h;1h/1-5,00:00-24:00;6h/6-7,00:00-24:00'
+          lifetime: '0'
+          host_prototypes:
+            -
+              host: 'lambda_{#LAMBDA_FUNCTION_NAME}'
+              name: '[Lambda] {#LAMBDA_FUNCTION_NAME}'
+              group_links:
+                -
+                  group:
+                    name: AWS/Lamba
+              templates:
+                -
+                  name: 'AWS Lambda Template'
+              macros:
+                -
+                  macro: '{$LAMBDA_FUNCTION_NAME}'
+                  value: '{#LAMBDA_FUNCTION_NAME}'
+                  description: 'Name of Lambda function'
+              tags:
+                -
+                  tag: aws_service
+                  value: lambda
+        -
+          name: 'RDS Cluster'
+          type: EXTERNAL
+          key: 'aws.discovery[rds,{$AWS_REGION},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE},cluster]'
+          delay: '1h;1h/1-5,00:00-24:00;6h/6-7,00:00-24:00'
+          lifetime: '0'
+          host_prototypes:
+            -
+              host: 'rds_cluster_{#CLUSTER_ID}'
+              name: '[RDS Cluster] {#CLUSTER_ID}'
+              group_links:
+                -
+                  group:
+                    name: AWS/RDSCluster
+              templates:
+                -
+                  name: 'AWS RDS Cluster Template'
+              macros:
+                -
+                  macro: '{$CLUSTER_ID}'
+                  value: '{#CLUSTER_ID}'
+                  description: 'ID of RDS Cluster'
+              tags:
+                -
+                  tag: aws_service
+                  value: rds_cluster
+        -
+          name: 'RDS Instance'
+          type: EXTERNAL
+          key: 'aws.discovery[rds,{$AWS_REGION},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: '1h;1h/1-5,00:00-24:00;6h/6-7,00:00-24:00'
+          lifetime: '0'
+          host_prototypes:
+            -
+              host: 'rds_{#RDS_ID}'
+              name: '[RDS] {#RDS_ID}'
+              group_links:
+                -
+                  group:
+                    name: AWS/RDS
+              templates:
+                -
+                  name: 'AWS RDS Template'
+              macros:
+                -
+                  macro: '{$INSTANCE_ID}'
+                  value: '{#RDS_ID}'
+                  description: 'ID of RDS Instance'
+                -
+                  macro: '{$RDS_STORAGE}'
+                  value: '{#STORAGE}'
+                  description: 'Storage allocated to RDS instance'
+              tags:
+                -
+                  tag: ec2_service
+                  value: rds
+        -
+          name: 'S3 Bucket'
+          type: EXTERNAL
+          key: 'aws.discovery[s3,{$AWS_REGION},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: '1h;1h/1-5,00:00-24:00;6h/6-7,00:00-24:00'
+          lifetime: '0'
+          host_prototypes:
+            -
+              host: 's3_{#BUCKET_NAME}'
+              name: '[S3] {#BUCKET_NAME}'
+              group_links:
+                -
+                  group:
+                    name: AWS/S3
+              templates:
+                -
+                  name: 'AWS S3 Template'
+              macros:
+                -
+                  macro: '{$BUCKET_NAME}'
+                  value: '{#BUCKET_NAME}'
+                  description: 'Name of the bucket'
+              tags:
+                -
+                  tag: aws_service
+                  value: s3
+      macros:
+        -
+          macro: '{$AWS_ACCOUNT}'
+          description: 'Account this resource belongs to'
+        -
+          macro: '{$AWS_ASSUME_ROLE}'
+          description: 'Optional role to assume'
+    -
+      template: 'AWS EC2 Template'
+      name: 'AWS EC2 Template'
+      groups:
+        -
+          name: Templates/AWS
+      applications:
+        -
+          name: CPU
+        -
+          name: 'System Health'
+      items:
+        -
+          name: '{$INSTANCE_ID} CPU Usage'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,CPUUtilization,"AWS/EC2",Average,{$AWS_REGION},InstanceId={$INSTANCE_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          value_type: FLOAT
+          units: '%'
+          applications:
+            -
+              name: CPU
+          triggers:
+            -
+              expression: '{last()}>80'
+              name: 'EC2: {$INSTANCE_ID}: High CPU usage'
+              priority: WARNING
+              description: '{ITEM.VALUE}'
+              dependencies:
+                -
+                  name: 'EC2: {$INSTANCE_ID}: High CPU usage for last 60 min'
+                  expression: '{AWS EC2 Template:cloudwatch.metric[600,CPUUtilization,"AWS/EC2",Average,{$AWS_REGION},InstanceId={$INSTANCE_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}].avg(60m)}>90'
+            -
+              expression: '{avg(60m)}>90'
+              name: 'EC2: {$INSTANCE_ID}: High CPU usage for last 60 min'
+              priority: AVERAGE
+              description: '{ITEM.VALUE}'
+        -
+          name: '{$INSTANCE_ID} Instance health'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,StatusCheckFailed_Instance,"AWS/EC2",Maximum,{$AWS_REGION},InstanceId={$INSTANCE_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
+          units: failures
+          applications:
+            -
+              name: 'System Health'
+          triggers:
+            -
+              expression: '{min(#3)}>0'
+              name: 'EC2: Instance fail on {$INSTANCE_ID}'
+              priority: HIGH
+        -
+          name: '{$INSTANCE_ID} Hypervisor health'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,StatusCheckFailed_System,"AWS/EC2",Maximum,{$AWS_REGION},InstanceId={$INSTANCE_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 10m
+          value_type: FLOAT
+          units: failures
+          applications:
+            -
+              name: 'System Health'
+          triggers:
+            -
+              expression: '{last()}>0'
+              name: 'EC2: Hypervisor fail on {$INSTANCE_ID}'
+              priority: DISASTER
+      tags:
+        -
+          tag: aws_service
+          value: ec2
+      macros:
+        -
+          macro: '{$AWS_ACCOUNT}'
+          description: 'Account this resource belongs to'
+        -
+          macro: '{$AWS_ASSUME_ROLE}'
+          description: 'Role to assume'
+        -
+          macro: '{$INSTANCE_ID}'
+          description: 'ID of EC2 Instance'
+    -
+      template: 'AWS ECS Template'
+      name: 'AWS ECS Template'
+      groups:
+        -
+          name: Templates/AWS
+      applications:
+        -
+          name: ECS
+      items:
+        -
+          name: '{$ECS_SERVICENAME} CPU Usage'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,CPUUtilization,"AWS/ECS",Average,{$AWS_REGION},"ClusterName={$ECS_CLUSTERNAME},ServiceName={$ECS_SERVICENAME}",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
+          units: '%'
+          applications:
+            -
+              name: ECS
+          triggers:
+            -
+              expression: '{last()}>80'
+              name: 'ECS: {$SERVICENAME}: High CPU usage'
+              priority: WARNING
+              description: '{ITEM.VALUE}'
+              dependencies:
+                -
+                  name: 'ECS: {$SERVICENAME}: High CPU usage for last 60 min'
+                  expression: '{AWS ECS Template:cloudwatch.metric[600,CPUUtilization,"AWS/ECS",Average,{$AWS_REGION},"ClusterName={$ECS_CLUSTERNAME},ServiceName={$ECS_SERVICENAME}",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}].avg(60m)}>90'
+            -
+              expression: '{avg(60m)}>90'
+              name: 'ECS: {$SERVICENAME}: High CPU usage for last 60 min'
+              priority: AVERAGE
+              description: '{ITEM.VALUE}'
+        -
+          name: '{$ECS_SERVICENAME} Memory Usage'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600, MemoryUtilization,"AWS/ECS",Average,{$AWS_REGION},"ClusterName={$ECS_CLUSTERNAME},ServiceName={$ECS_SERVICENAME}",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
+          units: '%'
+          applications:
+            -
+              name: ECS
+          triggers:
+            -
+              expression: '{last()}>80'
+              name: 'ECS: {$SERVICENAME}: High Memory usage'
+              priority: WARNING
+              description: '{ITEM.VALUE}'
+              dependencies:
+                -
+                  name: 'ECS: {$SERVICENAME}: High memory usage for last 60 min'
+                  expression: '{AWS ECS Template:cloudwatch.metric[600, MemoryUtilization,"AWS/ECS",Average,{$AWS_REGION},"ClusterName={$ECS_CLUSTERNAME},ServiceName={$ECS_SERVICENAME}",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}].avg(60m)}>90'
+            -
+              expression: '{avg(60m)}>90'
+              name: 'ECS: {$SERVICENAME}: High memory usage for last 60 min'
+              priority: AVERAGE
+              description: '{ITEM.VALUE}'
+      tags:
+        -
+          tag: aws_service
+          value: ecs
+      macros:
+        -
+          macro: '{$AWS_ACCOUNT}'
+          description: 'Account this resource belongs to'
+        -
+          macro: '{$AWS_ASSUME_ROLE}'
+          description: 'Role to assume'
+        -
+          macro: '{$ECS_CLUSTERNAME}'
+          description: 'Name of ECS Cluster'
+        -
+          macro: '{$ECS_SERVICENAME}'
+          description: 'Name of Service within ECS Cluster'
+    -
+      template: 'AWS ElastiCache Template'
+      name: 'AWS ElastiCache Template'
+      groups:
+        -
+          name: Templates/AWS
+      applications:
+        -
+          name: ElastiCache
+      items:
+        -
+          name: '{$CACHE_ENGINE} {$CACHE_CACHECLUSTERID} Host CPU Utilization'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[60,CPUUtilization,"AWS/ElastiCache",Average,{$AWS_REGION},CacheClusterId={$CACHE_CACHECLUSTERID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 2m
+          units: '%'
+          applications:
+            -
+              name: ElastiCache
+        -
+          name: '{$CACHE_ENGINE} {$CACHE_CACHECLUSTERID} CurrConnections'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[60,CurrConnections,"AWS/ElastiCache",Average,{$AWS_REGION},CacheClusterId={$CACHE_CACHECLUSTERID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          units: connections
+          applications:
+            -
+              name: ElastiCache
+        -
+          name: '{$CACHE_ENGINE} {$CACHE_CACHECLUSTERID} Engine CPU Utilization'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[60,EngineCPUUtilization,"AWS/ElastiCache",Average,{$AWS_REGION},CacheClusterId={$CACHE_CACHECLUSTERID},{$AWS_ACCOUNT},${AWS_ASSUME_ROLE}]'
+          delay: 2m
+          units: '%'
+          applications:
+            -
+              name: ElastiCache
+        -
+          name: '{$CACHE_ENGINE} {$CACHE_CACHECLUSTERID} Evictions'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[60,Evictions,"AWS/ElastiCache",Average,{$AWS_REGION},CacheClusterId={$CACHE_CACHECLUSTERID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          units: Count
+          applications:
+            -
+              name: ElastiCache
+        -
+          name: '{$CACHE_ENGINE} {$CACHE_CACHECLUSTERID} Swap Usage'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[60,SwapUsage,"AWS/ElastiCache",Average,{$AWS_REGION},CacheClusterId={$CACHE_CACHECLUSTERID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          units: B
+          applications:
+            -
+              name: ElastiCache
+          triggers:
+            -
+              expression: '{min(#10)}>50M'
+              name: 'ElastiCache: SwapUsage is more than 50 MB on {$CACHE_ENGINE} {$CACHE_CACHECLUSTERID}'
+              priority: HIGH
+        -
+          name: '{$CACHE_ENGINE} {$CACHE_CACHECLUSTERID} Freeable Memory'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[300,FreeableMemory,"AWS/ElastiCache",Average,{$AWS_REGION},CacheClusterId={$CACHE_CACHECLUSTERID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          units: B
+          applications:
+            -
+              name: ElastiCache
+        -
+          name: '{$CACHE_ENGINE} {$CACHE_CACHECLUSTERID} % free memory space'
+          type: CALCULATED
+          key: 'freepercent[{$CACHE_CACHECLUSTERID}]'
+          delay: 5m
+          units: '%'
+          params: 'last(&quot;cloudwatch.metric[300,FreeableMemory,"AWS/ElastiCache",Average,{$AWS_REGION},CacheClusterId={$CACHE_CACHECLUSTERID},{$AWS_ACCOUNT},{$AWS_ROLE}]&quot;)/({$CACHE_MEMORY}/100)'
+          applications:
+            -
+              name: ElastiCache
+      tags:
+        -
+          tag: aws_service
+          value: elasticache
+      macros:
+        -
+          macro: '{$AWS_ACCOUNT}'
+          description: 'Account this resource belongs to'
+        -
+          macro: '{$AWS_ASSUME_ROLE}'
+          description: 'Role to assume'
+        -
+          macro: '{$CACHE_CACHECLUSTERID}'
+          description: 'Cache Cluster ID'
+        -
+          macro: '{$CACHE_ENGINE}'
+          description: 'Cache Engine'
+        -
+          macro: '{$CACHE_MEMORY}'
+          description: 'Memory allocation for instance'
+        -
+          macro: '{$INSTANCE_ID}'
+          description: 'ID of ElastiCacheInstance'
+    -
+      template: 'AWS ELB Template'
+      name: 'AWS ELB Template'
+      groups:
+        -
+          name: Templates/AWS
+      applications:
+        -
+          name: ELB
+      items:
+        -
+          name: '{$BALANCER_NAME} UnHealthyHostCount'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,UnHealthyHostCount,"AWS/ELB",Maximum,{$AWS_REGION},LoadBalancerName={$BALANCER_NAME},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
+          units: hosts
+          applications:
+            -
+              name: ELB
+          triggers:
+            -
+              expression: '{min(#3)}>0'
+              name: 'ELB: {$BALANCER_NAME} unhealthy nodes'
+              priority: HIGH
+        -
+          name: '{$BALANCER_NAME} active instances'
+          type: CALCULATED
+          key: 'instances[{$BALANCER_NAME}]'
+          delay: 30m
+          params: '{$INSTANCES_COUNT}'
+          applications:
+            -
+              name: ELB
+          triggers:
+            -
+              expression: '{last()}=0'
+              name: 'ELB: {$BALANCER_NAME} has no active instances'
+              priority: INFO
+      tags:
+        -
+          tag: aws_service
+          value: elb
+      macros:
+        -
+          macro: '{$AWS_ACCOUNT}'
+          description: 'Account this resource belongs to'
+        -
+          macro: '{$AWS_ASSUME_ROLE}'
+          description: 'Role to assume'
+        -
+          macro: '{$BALANCER_NAME}'
+          description: 'Name of ELB'
+        -
+          macro: '{$INSTANCES_COUNT}'
+          description: 'Number of instances'
+    -
+      template: 'AWS ELBv2 Template'
+      name: 'AWS ELBv2 Template'
+      groups:
+        -
+          name: Templates/AWS
+      applications:
+        -
+          name: ELBv2
+      items:
+        -
+          name: 'ELBv2: {$TARGET_GROUP_LOAD_BALANCER_NAME} {$TARGET_GROUP_NAME} UnHealthyHostCount'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[120,UnHealthyHostCount,AWS/ApplicationELB,Maximum,{$AWS_REGION},"LoadBalancer={$TARGET_GROUP_LOAD_BALANCER_ARN},TargetGroup={$TARGET_GROUP_ARN}",{$ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 2m
+          value_type: FLOAT
+          units: hosts
+          applications:
+            -
+              name: ELBv2
+          triggers:
+            -
+              expression: '{last()}>0'
+              name: 'ELBv2: {$TARGET_GROUP_LOAD_BALANCER_NAME} target group {$TARGET_GROUP_NAME} unhealthy nodes'
+              priority: HIGH
+        -
+          name: 'ELBv2: {$TARGET_GROUP_LOAD_BALANCER_NAME} target group {$TARGET_GROUP_NAME} total targets'
+          type: CALCULATED
+          key: 'instances[{$TARGET_GROUP_LOAD_BALANCER_NAME},{$TARGET_GROUP_NAME}]'
+          delay: 1h
+          params: '{$TARGET_COUNT}'
+          applications:
+            -
+              name: ELBv2
+          triggers:
+            -
+              expression: '{last()}=-1'
+              name: 'ELBv2: No data points for {$TARGET_GROUP_LOAD_BALANCER_NAME} target {$TARGET_GROUP_NAME}'
+              priority: INFO
+            -
+              expression: '{last()}=0'
+              name: 'ELBv2: {$TARGET_GROUP_LOAD_BALANCER_NAME} target group {$TARGET_GROUP_NAME} has no active instances'
+              priority: INFO
+      tags:
+        -
+          tag: aws_service
+          value: elbv2
+      macros:
+        -
+          macro: '{$AWS_ACCOUNT}'
+          description: 'Account this resource belongs to'
+        -
+          macro: '{$AWS_ASSUME_ROLE}'
+          description: 'Role to assume'
+        -
+          macro: '{$TARGET_COUNT}'
+          description: 'Number of targets'
+        -
+          macro: '{$TARGET_GROUP_LOAD_BALANCER_NAME}'
+          description: 'Name of balancer'
+        -
+          macro: '{$TARGET_GROUP_NAME}'
+          description: 'Name of target group'
+    -
+      template: 'AWS EMR Template'
+      name: 'AWS EMR Template'
+      groups:
+        -
+          name: Templates/AWS
+      applications:
+        -
+          name: EMR
+      items:
+        -
+          name: '{$CLUSTER_NAME} failed apps'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,AppsFailed,"AWS/ElasticMapReduce",Average,{$AWS_REGION},JobFlowId={$CLUSTER_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
+          units: apps
+          applications:
+            -
+              name: EMR
+          triggers:
+            -
+              expression: |
+                (({TRIGGER.VALUE}=0 
+                and 
+                {last()}>0 
+                and 
+                {change()}>0) 
+                or 
+                ({TRIGGER.VALUE}=1 and {delta(#4)}>0))
+              name: 'EMR: {$CLUSTER_NAME} has new failed YARN apps'
+              priority: HIGH
+              description: '{ITEM.VALUE}'
+        -
+          name: '{$CLUSTER_NAME} HDFS utilization'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,HDFSUtilization,"AWS/ElasticMapReduce",Average,{$AWS_REGION},JobFlowId={$CLUSTER_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
+          units: '%'
+          applications:
+            -
+              name: EMR
+          triggers:
+            -
+              expression: '{avg(2)}>80'
+              name: 'EMR: {$CLUSTER_NAME} high HDFS usage'
+              priority: HIGH
+              description: '{ITEM.VALUE}'
+        -
+          name: '{$CLUSTER_NAME} unhealthy nodes'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,MRUnhealthyNodes,"AWS/ElasticMapReduce",Average,{$AWS_REGION},JobFlowId={$CLUSTER_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          units: nodes
+          applications:
+            -
+              name: EMR
+          triggers:
+            -
+              expression: '{last()}>0'
+              name: 'EMR: Unhealthy nodes in {$CLUSTER_NAME}'
+              priority: DISASTER
+              description: '{ITEM.VALUE}'
+      tags:
+        -
+          tag: aws_service
+          value: emr
+      macros:
+        -
+          macro: '{$AWS_ACCOUNT}'
+          description: 'Account this resource belongs to'
+        -
+          macro: '{$AWS_ASSUME_ROLE}'
+          description: 'Role to assume'
+        -
+          macro: '{$CLUSTER_ID}'
+          description: 'ID of EMR Cluster'
+    -
+      template: 'AWS Lambda Template'
+      name: 'AWS Lambda Template'
+      groups:
+        -
+          name: Templates/AWS
+      applications:
+        -
+          name: Lambda
+      items:
+        -
+          name: '{$LAMBDA_FUNCTION_NAME} errors'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[300,Errors,"AWS/Lambda",Sum,{$AWS_REGION},FunctionName={$LAMBDA_FUNCTION_NAME},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          units: errors
+          applications:
+            -
+              name: Lambda
+          triggers:
+            -
+              expression: '{last()}>0'
+              name: 'Lambda: {$LAMBDA_FUNCTION_NAME} has errors'
+              priority: AVERAGE
+        -
+          name: '{$LAMBDA_FUNCTION_NAME} invocations'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[300,Invocations,"AWS/Lambda",Average,{$AWS_REGION},FunctionName={$LAMBDA_FUNCTION_NAME},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          units: invocations
+          applications:
+            -
+              name: Lambda
+        -
+          name: '{$LAMBDA_FUNCTION_NAME} throttles'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[300,Throttles,"AWS/Lambda",Sum,{$AWS_REGION},FunctionName={$LAMBDA_FUNCTION_NAME},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          units: throttles
+          applications:
+            -
+              name: Lambda
+          triggers:
+            -
+              expression: '{last()}>0'
+              name: 'Lambda: {$LAMBDA_FUNCTION_NAME} is being throttled'
+              priority: WARNING
+      tags:
+        -
+          tag: aws_service
+          value: lambda
+      macros:
+        -
+          macro: '{$AWS_ACCOUNT}'
+          description: 'Account this resource belongs to'
+        -
+          macro: '{$AWS_ASSUME_ROLE}'
+          description: 'Role to assume'
+        -
+          macro: '{$LAMBDA_FUNCTION_NAME}'
+          description: 'Name of Lambda function'
+    -
+      template: 'AWS RDS Cluster Template'
+      name: 'AWS RDS Cluster Template'
+      groups:
+        -
+          name: Templates/AWS
+      applications:
+        -
+          name: RDS
+      items:
+        -
+          name: 'Cluster {$CLUSTER_ID} CPU usage'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,CPUUtilization,"AWS/RDS",Average,{$AWS_REGION},DBClusterIdentifier={$CLUSTER_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 10m
+          units: '%'
+          applications:
+            -
+              name: RDS
+          triggers:
+            -
+              expression: '{avg(#2)}>80'
+              name: 'RDS Cluster: {$CLUSTER_ID} high CPU usage'
+              priority: HIGH
+        -
+          name: 'Cluster {$CLUSTER_ID} volume storage used'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,VolumeBytesUsed,"AWS/RDS",Average,{$AWS_REGION},DBClusterIdentifier={$CLUSTER_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 10m
+          units: B
+          applications:
+            -
+              name: RDS
+      tags:
+        -
+          tag: aws_service
+          value: rds
+      macros:
+        -
+          macro: '{$AWS_ACCOUNT}'
+          description: 'Account this resource belongs to'
+        -
+          macro: '{$AWS_ASSUME_ROLE}'
+          description: 'Role to assume'
+        -
+          macro: '{$CLUSTER_ID}'
+          description: 'ID of RDS Cluster'
+    -
+      template: 'AWS RDS Template'
+      name: 'AWS RDS Template'
+      groups:
+        -
+          name: Templates/AWS
+      applications:
+        -
+          name: 'RDS CPU'
+        -
+          name: 'RDS Storage'
+      items:
+        -
+          name: '{$INSTANCE_ID} CPU Usage'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,CPUUtilization,"AWS/RDS",Average,{$AWS_REGION},"DBInstanceIdentifier={$INSTANCE_ID}",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 10m
+          value_type: FLOAT
+          units: '%'
+          applications:
+            -
+              name: 'RDS CPU'
+          triggers:
+            -
+              expression: '{avg(2)}>80'
+              name: 'RDS: {$INSTANCE_ID} high CPU usage'
+              priority: HIGH
+              description: '{ITEM.VALUE}'
+        -
+          name: '{$INSTANCE_ID} free storage space'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,FreeStorageSpace,AWS/RDS,Average,{$AWS_REGION},DBInstanceIdentifier={$INSTANCE_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 10m
+          units: B
+          applications:
+            -
+              name: 'RDS Storage'
+        -
+          name: '{$INSTANCE_ID} % free storage space'
+          type: CALCULATED
+          key: 'freepercent[{$INSTANCE_ID}]'
+          delay: 10m
+          value_type: FLOAT
+          units: '%'
+          params: 'last("cloudwatch.metric[600,FreeStorageSpace,AWS/RDS,Average,{$AWS_REGION},DBInstanceIdentifier={$INSTANCE_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]")/({$RDS_STORAGE}/100)'
+          applications:
+            -
+              name: 'RDS Storage'
+          triggers:
+            -
+              expression: '{last()}<20'
+              name: 'RDS: {$INSTANCE_ID} low on diskspace'
+              priority: HIGH
+              description: '{ITEM.VALUE} left'
+      tags:
+        -
+          tag: aws_service
+          value: rds
+      macros:
+        -
+          macro: '{$AWS_ACCOUNT}'
+          description: 'Account this resource belongs to'
+        -
+          macro: '{$AWS_ASSUME_ROLE}'
+          description: 'Role to assume'
+    -
+      template: 'AWS S3 Template'
+      name: 'AWS S3 Template'
+      groups:
+        -
+          name: Templates/AWS
+      applications:
+        -
+          name: S3
+      items:
+        -
+          name: '{$BUCKET_NAME} Bucket Size'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,BucketSizeBytes,"AWS/S3",Average,{$AWS_REGION},"BucketName={$BUCKET_NAME},StorageType=StandardStorage",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE},172800]'
+          delay: 5m
+          value_type: FLOAT
+          units: Bytes
+          applications:
+            -
+              name: S3
+        -
+          name: '{$BUCKET_NAME} Number Of Objects'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[600,NumberOfObjects,"AWS/S3",Average,{$AWS_REGION},"BucketName={$BUCKET_NAME},StorageType=AllStorageTypes",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE},172800]'
+          delay: 10m
+          value_type: FLOAT
+          units: Objects
+          applications:
+            -
+              name: S3
+      tags:
+        -
+          tag: aws_service
+          value: s3
+      macros:
+        -
+          macro: '{$AWS_ACCOUNT}'
+          description: 'Account this resource belongs to'
+        -
+          macro: '{$AWS_ASSUME_ROLE}'
+          description: 'Role to assume'
+        -
+          macro: '{$BUCKET_NAME}'
+          description: 'Name of S3 Bucket'
+  triggers:
+    -
+      expression: |
+        {AWS EC2 Template:cloudwatch.metric[600,CPUUtilization,"AWS/EC2",Average,{$AWS_REGION},InstanceId={$INSTANCE_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}].last()}=-1 
+        or
+        {AWS EC2 Template:cloudwatch.metric[600,StatusCheckFailed_System,"AWS/EC2",Maximum,{$AWS_REGION},InstanceId={$INSTANCE_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}].last()}=-1 
+        or
+        {AWS EC2 Template:cloudwatch.metric[600,StatusCheckFailed_Instance,"AWS/EC2",Maximum,{$AWS_REGION},InstanceId={$INSTANCE_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}].last()}=-1
+      name: 'EC2: No datapoints for {$INSTANCE_ID}'
+      priority: INFO
+      description: |
+        1. Your item is incorrectly configured (dimension, namespace, metric name could be wrong)
+        2. Instance was terminated and this item will disappear after next discovery
+    -
+      expression: |
+        {AWS EMR Template:cloudwatch.metric[600,HDFSUtilization,"AWS/ElasticMapReduce",Average,{$AWS_REGION},JobFlowId={$CLUSTER_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}].last()}=-1 
+        or 
+        {AWS EMR Template:cloudwatch.metric[600,MRUnhealthyNodes,"AWS/ElasticMapReduce",Average,{$AWS_REGION},JobFlowId={$CLUSTER_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}].last()}=-1
+      name: 'EMR: {$CLUSTER_NAME} has no datapoints'
+      priority: INFO
+      description: |
+        1. Your item is incorrectly configured (dimension, namespace, metric name could be wrong)
+        2. Instance was terminated and this item will disappear after next discovery
+    -
+      expression: |
+        {AWS RDS Template:cloudwatch.metric[600,CPUUtilization,"AWS/RDS",Average,{$AWS_REGION},"DBInstanceIdentifier={$INSTANCE_ID}",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}].last()}=-1 
+        or 
+        {AWS RDS Template:cloudwatch.metric[600,FreeStorageSpace,AWS/RDS,Average,{$AWS_REGION},DBInstanceIdentifier={$INSTANCE_ID},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}].last()}=-1
+      name: 'RDS: {$INSTANCE_ID} has no datapoints'
+      priority: INFO
+      description: |
+        1. Your item is incorrectly configured (dimension, namespace, metric name could be wrong)
+        2. Instance was terminated and this item will disappear after next discovery
+    -
+      expression: |
+        {AWS S3 Template:cloudwatch.metric[600,BucketSizeBytes,"AWS/S3",Average,{$AWS_REGION},"BucketName={$BUCKET_NAME},StorageType=StandardStorage",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE},172800].last()}=-1 
+        or 
+        {AWS S3 Template:cloudwatch.metric[600,NumberOfObjects,"AWS/S3",Average,{$AWS_REGION},"BucketName={$BUCKET_NAME},StorageType=AllStorageTypes",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE},172800].last()}=-1
+      name: 'S3: {$BUCKET_NAME} has no datapoints'
+      priority: INFO
+      description: |
+        1. Your item is incorrectly configured (dimension, namespace, metric name could be wrong)
+        2. Bucket was destroyed and this item will disappear after next discovery

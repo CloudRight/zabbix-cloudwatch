@@ -3,6 +3,11 @@ AWS CloudWatch integration for Zabbix 5.x.
 
 Requires Python 3.7+
 
+## How does it work
+We use a "dummy host" in Zabbix to serve as AWS Account. This account gets the `AWS Discovery Template` assigned. From here all discoveries are being done using External Checks.
+
+For each discovered service (e.g. EC2 instance, S3 Bucket, ECS Task etc) a **new host** will be created within Zabbix with the appropriate service-template (e.g. `AWS EC2 Template`, `AWS ELB Template`) assigned.
+
 ## Installation
 ### Preparations in AWS
 You have two options here:
@@ -26,12 +31,12 @@ You have two options here:
 
 
 ### Preparations for your Zabbix node
-- Clone this github repo or download the zip/tar.gz.
+- Clone this GitHub repo or download the zip/tar.gz.
 - Copy the contents of `externalscripts` into `/usr/lib/zabbix/externalscripts`
 - [Install](http://boto3.readthedocs.io/en/latest/guide/quickstart.html) system-wide `boto3` package (`pip3 install boto3`)
 
 ### Configuration - Global
-- Import `templates/cloudwatch_template.xml` into Zabbix
+- Import the [bundled templates](./templates/AWS_Templates.yaml) into Zabbix
 
 You can deal with your configuration in a few different ways:
 1. Provide the AWS credentials of your IAM User and other configuration if required by writing to a configuration file in `~/.aws/` for the Zabbix user.
@@ -61,19 +66,19 @@ The default template includes discovery and items for the following services:
 | **CloudFront**  | `list_distributions()`                | `CloudFrontReadOnlyAccess`          |           
 | **ElastiCache** | `describe_cache_clusters()`           | `AmazonElastiCacheReadOnlyAccess`   |
 | **RDS**         | `describe_db_instances()`             | `AmazonRDSReadOnlyAccess`           |
+| **RDS Cluster** | `describe_db_clusters()`              | `AmazonRDSReadOnlyAccess`           |
 | **ELB**         | `describe_load_balancers()`           | `ElasticLoadBalancingReadOnly`      |
 | **EMR**         | `list_clusters()`                     | `AmazonElastiCacheReadOnlyAccess`   |
 | **ELBv2 (ALB)** | `describe_target_groups()`            | `ElasticLoadBalancingReadOnly`      |
 | **S3**          | `list_buckets()`                      | `AmazonS3ReadOnlyAccess`            |
 | **ECS**         | `list_clusters()` / `list_services()` | `n/a`                               |
+<!--
+# Work in Progress
+| **ACM**         | `list_certificates()`                 | `AWSCertificateManagerReadOnly`     | 
+-->
+
 
 Alternatively you can assign your user the AWS Managed Policy `ViewOnlyAccess` which allows `List*` and `Describe*` calls across all AWS Services.
-
-## Roadmap:
-- CloudFront template
-- ElastiCache template
-- ECS template
-- Separate templates for using _without_ autodiscovery (Host created per item)
 
 ## Credits
 - [@wawastein](https://github.com/wawastein) for creating the initial module
