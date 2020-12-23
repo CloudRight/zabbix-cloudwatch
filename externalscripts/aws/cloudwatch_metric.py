@@ -9,6 +9,7 @@ from discovery.aws_client import AWSClient
 class Checker(AWSClient):
     def get_metric(self, interval, metric, namespace, statistic, history, dimensions):
         history = int(history)
+
         # Constructing timestamps for limiting CloudWatch datapoint list
         time_delay = datetime.timedelta(seconds=80)
         end_time = datetime.datetime.utcnow().replace(microsecond=0, second=0) - time_delay
@@ -21,6 +22,7 @@ class Checker(AWSClient):
             EndTime=end_time.isoformat(),
             Statistics=[statistic, ],
             Period=interval)
+
         # We use only the last datapoint from list
         # Return -1 if there are no datapoints
         if len(result["Datapoints"]) > 0:
@@ -29,22 +31,11 @@ class Checker(AWSClient):
             ret_val = -1
         if self.debug:
             print(result)
-        # This is a dirty hack, because CW returns bytes in float
+
+        # Some CW metrics are returned as float rather than an integer.
         # This can be a problem, because RDS instances can be huge
         # and overflow Zabbix DB floating point data type
-        if metric == "FreeStorageSpace":
-            ret_val = int(ret_val)
-        # ElastiCache metrics
-        if metric == "BytesUsedForCache":
-            ret_val = int(ret_val)
-        if metric == "FreeableMemory":
-            ret_val = int(ret_val)
-        if metric == "SwapUsage":
-            # unit: byte
-            ret_val = int(ret_val)
-        if metric == "Evictions":
-            ret_val = int(ret_val)
-        if metric == "CurrConnections":
+        if metric in ["FreeStorageSpace", "BytesUsedForCache", "FreeableMemory", "SwapUsage", "Evictions", "CurrConnections"]:
             ret_val = int(ret_val)
         return ret_val
 
@@ -59,6 +50,7 @@ class Checker(AWSClient):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Gets metrics from CW")
+
     # Metric specifications
     parser.add_argument("--interval", dest="interval",
                         help="Refresh interval",
@@ -75,6 +67,7 @@ if __name__ == "__main__":
     parser.add_argument("--dimension", dest="dimension",
                         help="Dimension(s)",
                         required=True, type=str)
+
     # Account specific
     parser.add_argument("--region", dest="region",
                         help="Instance region",
@@ -82,17 +75,19 @@ if __name__ == "__main__":
     parser.add_argument("--account", dest="account",
                         help="Instance account",
                         required=True, type=str)
+
     # Authentication
     parser.add_argument("--assume-role", dest="assume_role",
                         help="Instance role to assume",
                         default=os.environ.get('AWS_ROLE_ARN', None),
                         required=False, type=str)
+
     # Details
     parser.add_argument("--history", dest="history",
                         help="Amount of seconds to fetch history, latest datapoint will be chosen",
                         required=False, default=0)
     parser.add_argument("--debug", dest="debug",
-                        help="Debug flag",
+                        action="store_true", help="Debug flag",
                         required=False)
     args = parser.parse_args()
 

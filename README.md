@@ -33,7 +33,7 @@ You have two options here:
 ### Preparations for your Zabbix node
 - Clone this GitHub repo or download the zip/tar.gz.
 - Copy the contents of `externalscripts` into `/usr/lib/zabbix/externalscripts`
-- [Install](http://boto3.readthedocs.io/en/latest/guide/quickstart.html) system-wide `boto3` package (`pip3 install boto3`)
+- Install Python dependencies `pip3 install -r requirements.txt`
 
 ### Configuration - Global
 - Import the [bundled templates](./templates/AWS_Templates.yaml) into Zabbix
@@ -72,10 +72,8 @@ The default template includes discovery and items for the following services:
 | **ELBv2 (ALB)** | `describe_target_groups()`            | `ElasticLoadBalancingReadOnly`      |
 | **S3**          | `list_buckets()`                      | `AmazonS3ReadOnlyAccess`            |
 | **ECS**         | `list_clusters()` / `list_services()` | `n/a`                               |
-<!--
-# Work in Progress
 | **ACM**         | `list_certificates()`                 | `AWSCertificateManagerReadOnly`     | 
--->
+
 
 
 Alternatively you can assign your user the AWS Managed Policy `ViewOnlyAccess` which allows `List*` and `Describe*` calls across all AWS Services.

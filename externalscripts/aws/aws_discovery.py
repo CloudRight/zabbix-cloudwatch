@@ -27,6 +27,9 @@ if __name__ == "__main__":
     parser.add_argument("--args", dest="args", default="",
                         help="Optional args for discovery modules",
                         required=False, type=str, nargs="+")
+    parser.add_argument("--debug", dest="debug",
+                        action="store_true", help="Debug flag",
+                        required=False)
     args = parser.parse_args()
 
     # Tricky part is to dynamically import ONLY one module

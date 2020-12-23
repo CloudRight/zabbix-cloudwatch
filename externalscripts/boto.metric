@@ -1,0 +1,10 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd "${DIR}/aws" || exit 1
+
+if [ $# -gt 6 ]; then
+    ./boto_data.py --service "${1}" --region "${2}" --account "${3}" --function "${4}" --filter "${5}" --assume-role "${6}" --args "${@:7}"
+else
+    ./boto_data.py --service "${1}" --region "${2}" --account "${3}" --function "${4}" --filter "${5}" --assume-role "${6}"
+fi

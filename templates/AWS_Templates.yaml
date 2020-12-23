@@ -1,7 +1,9 @@
 zabbix_export:
   version: '5.2'
-  date: '2020-12-22T13:27:44Z'
+  date: '2020-12-23T10:04:18Z'
   groups:
+    -
+      name: AWS/ACM
     -
       name: AWS/CloudFront
     -
@@ -30,8 +32,107 @@ zabbix_export:
       name: Templates/AWS
   templates:
     -
+      template: 'AWS ACM Template'
+      name: 'AWS ACM Template'
+      description: 'Documentation: https://github.com/CloudRight/zabbix-cloudwatch'
+      groups:
+        -
+          name: Templates/AWS
+      applications:
+        -
+          name: ACM
+      items:
+        -
+          name: '{$CERTIFICATE_DOMAIN} Certificate Expiration Days'
+          type: DEPENDENT
+          key: 'acm[NotAfter, {$CERTIFICATE_ARN}]'
+          delay: '0'
+          units: days
+          applications:
+            -
+              name: ACM
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.NotAfter
+            -
+              type: JAVASCRIPT
+              parameters:
+                - |
+                  var now = Math.floor(Date.now()/1000);
+                  var days = Math.round((value-now)/60/60/24)
+                  return days;
+          master_item:
+            key: 'boto.metric[acm,{$AWS_REGION},{$AWS_ACCOUNT},describe_certificate,,{$AWS_ASSUME_ROLE},"CertificateArn={$CERTIFICATE_ARN}"]'
+        -
+          name: '{$CERTIFICATE_DOMAIN} Certificate RenewalEligibility'
+          type: DEPENDENT
+          key: 'acm[RenewalEligibility, {$CERTIFICATE_ARN}]'
+          delay: '0'
+          trends: '0'
+          value_type: CHAR
+          applications:
+            -
+              name: ACM
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.RenewalEligibility
+          master_item:
+            key: 'boto.metric[acm,{$AWS_REGION},{$AWS_ACCOUNT},describe_certificate,,{$AWS_ASSUME_ROLE},"CertificateArn={$CERTIFICATE_ARN}"]'
+          triggers:
+            -
+              expression: '{regexp(^ELIGIBLE$)}=0'
+              name: 'Certificate {$CERTIFICATE_DOMAIN} not eligible for renewal'
+              priority: AVERAGE
+        -
+          name: '{$CERTIFICATE_DOMAIN} Certificate Status'
+          type: DEPENDENT
+          key: 'acm[Status, {$CERTIFICATE_ARN}]'
+          delay: '0'
+          trends: '0'
+          value_type: CHAR
+          applications:
+            -
+              name: ACM
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.Status
+          master_item:
+            key: 'boto.metric[acm,{$AWS_REGION},{$AWS_ACCOUNT},describe_certificate,,{$AWS_ASSUME_ROLE},"CertificateArn={$CERTIFICATE_ARN}"]'
+          triggers:
+            -
+              expression: '{regexp(^ISSUED$)}=0'
+              name: 'Certificate {$CERTIFICATE_DOMAIN} not issued'
+              priority: AVERAGE
+        -
+          name: '{$CERTIFICATE_DOMAIN} Certificate Data'
+          type: EXTERNAL
+          key: 'boto.metric[acm,{$AWS_REGION},{$AWS_ACCOUNT},describe_certificate,,{$AWS_ASSUME_ROLE},"CertificateArn={$CERTIFICATE_ARN}"]'
+          delay: 1h
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+          applications:
+            -
+              name: ACM
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.Certificate
+      tags:
+        -
+          tag: aws_service
+          value: acm
+    -
       template: 'AWS CloudFront Template'
       name: 'AWS CloudFront Template'
+      description: 'Documentation: https://github.com/CloudRight/zabbix-cloudwatch'
       groups:
         -
           name: Templates/AWS
@@ -108,15 +209,6 @@ zabbix_export:
           applications:
             -
               name: CloudFront
-        -
-          name: '{$CF_ID} TotalErrorRate'
-          type: EXTERNAL
-          key: 'cloudwatch.metric[600,TotalErrorRate,"AWS/CloudFront",Average,us-east-1,"DistributionId={$CF_ID},Region=Global",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
-          delay: 5m
-          units: errors
-          applications:
-            -
-              name: CloudFront
       tags:
         -
           tag: aws_service
@@ -124,11 +216,41 @@ zabbix_export:
     -
       template: 'AWS Discovery Template'
       name: 'AWS Discovery Template'
-      description: 'Discovers AWS Services and creates individual Zabbix Hosts.'
+      description: 'Documentation: https://github.com/CloudRight/zabbix-cloudwatch'
       groups:
         -
           name: Templates
       discovery_rules:
+        -
+          name: 'ACM Certificate'
+          type: EXTERNAL
+          key: 'aws.discovery[acm,{$AWS_REGION},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: '1h;1h/1-5,00:00-24:00;6h/6-7,00:00-24:00'
+          lifetime: '0'
+          host_prototypes:
+            -
+              host: 'acm_{#DOMAIN}'
+              name: '[ACM] {#DOMAIN}'
+              group_links:
+                -
+                  group:
+                    name: AWS/ACM
+              templates:
+                -
+                  name: 'AWS ACM Template'
+              macros:
+                -
+                  macro: '{$CERTIFICATE_ARN}'
+                  value: '{#ARN}'
+                  description: 'Unique identifier of certificate'
+                -
+                  macro: '{$CERTIFICATE_DOMAIN}'
+                  value: '{#DOMAIN}'
+                  description: 'Primary domainname on certificate'
+              tags:
+                -
+                  tag: aws_service
+                  value: acm
         -
           name: 'Cloudfront Distribution'
           type: EXTERNAL
@@ -312,7 +434,7 @@ zabbix_export:
           host_prototypes:
             -
               host: 'elbv2_{#TARGET_GROUP_NAME}'
-              name: '[ALB] {#TARGET_GROUP_NAME}'
+              name: 'ELBv2] {#TARGET_GROUP_NAME}'
               group_links:
                 -
                   group:
@@ -340,11 +462,11 @@ zabbix_export:
                 -
                   macro: '{$TARGET_GROUP_LOAD_BALANCER_NAME}'
                   value: '{#TARGET_GROUP_LOAD_BALANCER_NAME}'
-                  description: 'Name of ALB'
+                  description: 'Name of ELB'
                 -
                   macro: '{$TARGET_GROUP_NAME}'
                   value: '{#TARGET_GROUP_NAME}'
-                  description: 'Target group used by ALB'
+                  description: 'Target group used by ELB'
                 -
                   macro: '{$TARGET_GROUP_PORT}'
                   value: '{#TARGET_GROUP_PORT}'
@@ -501,6 +623,7 @@ zabbix_export:
     -
       template: 'AWS EC2 Template'
       name: 'AWS EC2 Template'
+      description: 'Documentation: https://github.com/CloudRight/zabbix-cloudwatch'
       groups:
         -
           name: Templates/AWS
@@ -581,6 +704,7 @@ zabbix_export:
     -
       template: 'AWS ECS Template'
       name: 'AWS ECS Template'
+      description: 'Documentation: https://github.com/CloudRight/zabbix-cloudwatch'
       groups:
         -
           name: Templates/AWS
@@ -658,6 +782,7 @@ zabbix_export:
     -
       template: 'AWS ElastiCache Template'
       name: 'AWS ElastiCache Template'
+      description: 'Documentation: https://github.com/CloudRight/zabbix-cloudwatch'
       groups:
         -
           name: Templates/AWS
@@ -760,6 +885,7 @@ zabbix_export:
     -
       template: 'AWS ELB Template'
       name: 'AWS ELB Template'
+      description: 'Documentation: https://github.com/CloudRight/zabbix-cloudwatch'
       groups:
         -
           name: Templates/AWS
@@ -816,6 +942,7 @@ zabbix_export:
     -
       template: 'AWS ELBv2 Template'
       name: 'AWS ELBv2 Template'
+      description: 'Documentation: https://github.com/CloudRight/zabbix-cloudwatch'
       groups:
         -
           name: Templates/AWS
@@ -879,6 +1006,7 @@ zabbix_export:
     -
       template: 'AWS EMR Template'
       name: 'AWS EMR Template'
+      description: 'Documentation: https://github.com/CloudRight/zabbix-cloudwatch'
       groups:
         -
           name: Templates/AWS
@@ -957,6 +1085,7 @@ zabbix_export:
     -
       template: 'AWS Lambda Template'
       name: 'AWS Lambda Template'
+      description: 'Documentation: https://github.com/CloudRight/zabbix-cloudwatch'
       groups:
         -
           name: Templates/AWS
@@ -965,9 +1094,21 @@ zabbix_export:
           name: Lambda
       items:
         -
+          name: '{$LAMBDA_FUNCTION_NAME} duration'
+          type: EXTERNAL
+          key: 'cloudwatch.metric[300,Duration,"AWS/Lambda",Sum,{$AWS_REGION},"FunctionName={$LAMBDA_FUNCTION_NAME},Resource={$LAMBDA_FUNCTION_NAME}",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
+          units: ms
+          applications:
+            -
+              name: Lambda
+        -
           name: '{$LAMBDA_FUNCTION_NAME} errors'
           type: EXTERNAL
-          key: 'cloudwatch.metric[300,Errors,"AWS/Lambda",Sum,{$AWS_REGION},FunctionName={$LAMBDA_FUNCTION_NAME},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          key: 'cloudwatch.metric[300,Errors,"AWS/Lambda",Sum,{$AWS_REGION},"FunctionName={$LAMBDA_FUNCTION_NAME},Resource={$LAMBDA_FUNCTION_NAME}",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          delay: 5m
+          value_type: FLOAT
           units: errors
           applications:
             -
@@ -975,13 +1116,14 @@ zabbix_export:
           triggers:
             -
               expression: '{last()}>0'
-              name: 'Lambda: {$LAMBDA_FUNCTION_NAME} has errors'
+              name: '{$LAMBDA_FUNCTION_NAME} has errors'
               priority: AVERAGE
         -
           name: '{$LAMBDA_FUNCTION_NAME} invocations'
           type: EXTERNAL
-          key: 'cloudwatch.metric[300,Invocations,"AWS/Lambda",Average,{$AWS_REGION},FunctionName={$LAMBDA_FUNCTION_NAME},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          key: 'cloudwatch.metric[300,Invocations,"AWS/Lambda",Average,{$AWS_REGION},"FunctionName={$LAMBDA_FUNCTION_NAME},Resource={$LAMBDA_FUNCTION_NAME}",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
           delay: 5m
+          value_type: FLOAT
           units: invocations
           applications:
             -
@@ -989,8 +1131,9 @@ zabbix_export:
         -
           name: '{$LAMBDA_FUNCTION_NAME} throttles'
           type: EXTERNAL
-          key: 'cloudwatch.metric[300,Throttles,"AWS/Lambda",Sum,{$AWS_REGION},FunctionName={$LAMBDA_FUNCTION_NAME},{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
+          key: 'cloudwatch.metric[300,Throttles,"AWS/Lambda",Sum,{$AWS_REGION},"FunctionName={$LAMBDA_FUNCTION_NAME},Resource={$LAMBDA_FUNCTION_NAME}",{$AWS_ACCOUNT},{$AWS_ASSUME_ROLE}]'
           delay: 5m
+          value_type: FLOAT
           units: throttles
           applications:
             -
@@ -998,7 +1141,7 @@ zabbix_export:
           triggers:
             -
               expression: '{last()}>0'
-              name: 'Lambda: {$LAMBDA_FUNCTION_NAME} is being throttled'
+              name: '{$LAMBDA_FUNCTION_NAME} is being throttled'
               priority: WARNING
       tags:
         -
@@ -1017,6 +1160,7 @@ zabbix_export:
     -
       template: 'AWS RDS Cluster Template'
       name: 'AWS RDS Cluster Template'
+      description: 'Documentation: https://github.com/CloudRight/zabbix-cloudwatch'
       groups:
         -
           name: Templates/AWS
@@ -1064,6 +1208,7 @@ zabbix_export:
     -
       template: 'AWS RDS Template'
       name: 'AWS RDS Template'
+      description: 'Documentation: https://github.com/CloudRight/zabbix-cloudwatch'
       groups:
         -
           name: Templates/AWS
@@ -1129,6 +1274,7 @@ zabbix_export:
     -
       template: 'AWS S3 Template'
       name: 'AWS S3 Template'
+      description: 'Documentation: https://github.com/CloudRight/zabbix-cloudwatch'
       groups:
         -
           name: Templates/AWS
